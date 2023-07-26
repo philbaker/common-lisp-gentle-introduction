@@ -78,10 +78,10 @@
 
 ; 1.6 The HALF function returns a number that is one-half of its input.
 ; Show how to define HALF in two different ways
-(defun half1 (n)
+(defun half (n)
   (/ n 2))
 
-(half1 6)
+(half 6)
 ; 3
 
 (defun half2 (n)
@@ -109,3 +109,140 @@
 
 (sub0 5)
 ; 5
+
+
+; 1.9 write a predicate TWOMOREP that returns T if its first input is
+; exactly two more than its second input. Use the ADD2 function in
+; your definition of TWOMOREP
+(defun add2 (n)
+  (+ n 2))
+
+(defun twomorep (x y)
+  (equal x (add2 y)))
+
+(twomorep 5 3)
+; T
+
+(twomorep 5 5)
+; NIL
+
+; 1.10 find a way to write the TWOMOREP predicate using SUB2 instead of
+; ADD2
+ (defun twomoresubp (x y)
+   (equal (sub2 x) y))
+
+(twomoresubp 5 3)
+; T
+
+(twomoresubp 5 5)
+; NIL
+
+; 1.11 the average of two numbers is half their sum. Write the AVERAGE
+; function
+(defun average (x y)
+  (half (+ x y)))
+
+(average 5 9)
+; 7
+
+
+; 1.12 write a MORE-THAN-HALF-P predicate that returns T if its first
+; input is more than half of its second input
+(defun more-than-half-p (x y)
+  (> x (half y)))
+
+(more-than-half-p 6 10)
+; T
+
+(more-than-half-p 6 12)
+; NIL
+
+
+; 1.13 the following function returns the same result no matter what
+; its input. What result does it return?
+(symbolp (numberp nil))
+; T
+
+(symbolp (numberp 4))
+; T
+
+(symbolp (numberp "hello"))
+; T
+
+(symbolp (numberp 'a))
+; T
+
+
+; 1.14 fill in the results of the following computations
+(not nil) ; T
+(not 12) ; NIL
+; (not not) - error
+
+
+; 1.15 write a predicate NOT-ONEP that returns T if its input is anything
+; other than 1
+(defun not-onep (x)
+  (not (equal x 1)))
+
+(not-onep 5)
+; T
+
+(not-onep 'a)
+; T
+
+(not-onep 1)
+; NIL
+
+
+; 1.16 write the predicate NOT-PLUSP that returns T if its input is not greater
+; than zero
+(defun not-plusp (n)
+  (not (plusp n)))
+
+(not-plusp 4)
+; NIL
+
+(not-plusp -4)
+; T
+
+
+; 1.17 some earlier Lisp dialects did not have the EVENP primitive; they only
+; had ODDP. Show how to define EVENP in terms of ODDP
+(defun my-evenp (n)
+  (not (oddp n)))
+
+(my-evenp 7)
+; NIL
+
+(my-evenp 4)
+; T
+
+
+; 1.18 under what condition does this predicate function return T
+(defun add1 (n)
+  (+ n 1))
+
+(defun add-two-zerop (n)
+  (zerop (add1 (add1 n))))
+
+(add-two-zerop -2)
+; T
+
+(add-two-zerop 0)
+; NIL
+
+
+; 1.19 what result does the functtion below produce when given the input NIL?
+; What about the input T? Will all data flow through this function unchanged?
+; What result is produced for the input RUTABAGA?
+(defun not-not (x)
+  (not (not x)))
+
+(not-not nil)
+; NIL
+
+(not-not t)
+; T
+
+(not-not "RUTUBAGA")
+; T
