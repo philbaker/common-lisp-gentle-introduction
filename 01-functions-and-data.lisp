@@ -126,6 +126,7 @@
 (twomorep 5 5)
 ; NIL
 
+
 ; 1.10 find a way to write the TWOMOREP predicate using SUB2 instead of
 ; ADD2
  (defun twomoresubp (x y)
@@ -136,6 +137,7 @@
 
 (twomoresubp 5 5)
 ; NIL
+
 
 ; 1.11 the average of two numbers is half their sum. Write the AVERAGE
 ; function
