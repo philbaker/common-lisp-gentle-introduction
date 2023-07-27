@@ -248,3 +248,74 @@
 
 (not-not "RUTUBAGA")
 ; T
+
+
+; 1.20 write XOR, the exclusive-or-truth function, which returns T when one
+; of its inputs is NIL and the other is T, but returns NIL when both are nil
+; or both are T
+(defun xor (x y)
+  (not (equal x y)))
+
+(xor nil t)
+; T
+
+(xor t nil)
+; T
+
+(xor nil nil)
+; NIL
+
+(xor t t)
+; NIL
+
+
+; 1.21 what is wrong with each of these functions?
+; (add1 (zerop 5))
+; The value NIL is not of type NUMBER
+
+; (equal (+ 4 5))
+; invalid number of arguments: 1
+
+; (symbolp (not 5 5))
+; invalid number of arguments: 2
+
+
+; 1.22 
+; are all predicates functions? yes
+; are all functions predicates? no
+
+
+; 1.23 which built in predicates introduced in this chapter have names that do
+; not end in p?
+; not, equal, >, <
+
+
+; 1.24
+; Is NUMBER a number? no
+(type-of 'number)
+; SYMBOL
+
+; Is SYMBOL a symbol? yes
+(type-of 'symbol)
+; SYMBOL
+
+
+; 1.25 why is FALSE true in Lisp?
+; Because it is a symbol and symbols are not nil - therefore FALSE is truthy
+
+
+; 1.26 true or false
+; all predicates accept T or NIL as input - false
+; (> nil t) The value NIL is not of type REAL
+
+; all predicates produce T or NIL as output - true
+
+
+; 1.27
+; give an example of the use of EVENP that would cause a wrong-type-input error
+; (evenp 'abc) 
+; The value NIL is not of type REAL
+
+; give an example that would cause a wrong-number-of-inputs error
+; (evenp 5 4)
+; invalid number of arguments: 2
