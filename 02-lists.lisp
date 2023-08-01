@@ -175,3 +175,99 @@
 
 ; cons
 (cons 'FROB nil) ; (FROB)
+
+
+; 2.18 write a function that takes any two inputs and makes a list of them 
+; using CONS
+(defun my-cons (x y)
+  (cons x (cons y nil)))
+
+(my-cons 'BAZ 'FRED)
+; (BAZ FRED)
+
+(my-cons 2 8)
+; (2 8)
+
+
+; 2.19 fill in the results of the following computations
+(list 'FRED 'AND 'WILMA)
+; (FRED AND WILMA)
+
+(list 'FRED '(AND WILMA))
+; (FRED (AND WILMA))
+
+(cons 'FRED '(AND WILMA))
+; (FRED AND WILMA)
+
+(cons nil nil)
+; (NIL)
+
+(list nil nil)
+; (NIL NIL)
+
+
+; 20 what results are returned by the following?
+ (list nil)
+; (NIL)
+
+(list t nil)
+; (T NIL)
+
+(cons t nil)
+; (T)
+
+(cons '(t) nil)
+; ((T))
+
+(list '(IN ONE EAR) '(OUT THE OTHER))
+; ((IN ONE EAR) (OUT THE OTHER))
+
+(cons '(IN ONE EAR) '(OUT THE OTHER))
+; ((IN ONE EAR) OUT THE OTHER)
+
+
+; 2.21 write a function that takes four inputs and returns a two-element
+; list. The first element should be a list of the first two inputs, and the 
+; second element a list of the last two inputs
+(defun four-inputs (w x y z)
+  (list (list w x) (list y z)))
+
+(four-inputs 1 2 3 4)
+; ((1 2) (3 4))
+
+
+; 2.22 write a duo-cons function that adds two elements to the front of a list
+(defun duo-cons (x y z)
+  (cons x (cons y z)))
+
+(duo-cons 'PATRICK 'SEYMOUR '(MARVIN))
+; (PATRICK SEYMOUR MARVIN)
+
+; 2.23 write a two-deeper function that surrounds its input with two levels of parens.
+; write another version using cons
+(defun two-deeper (x)
+  (list (list x)))
+
+(defun two-deeper-cons (x)
+  (cons (cons x nil) nil))
+
+(two-deeper 'MOO)
+; ((MOO))
+
+(two-deeper-cons 'MOO)
+; ((MOO))
+
+(two-deeper '(BOW WOW))
+; (((BOW WOW)))
+
+(two-deeper-cons '(BOW WOW))
+; (((BOW WOW)))
+
+
+; 2.24 what built in lisp function would extract the symbol NIGHT from (((GOOD)) ((NIGHT)))
+(caaadr '(((GOOD)) ((NIGHT))))
+; NIGHT
+
+
+; 2.25 why do cons cells and the CONS function share the same name?
+; because CONS creates a new cons cell
