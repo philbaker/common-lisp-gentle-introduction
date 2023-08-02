@@ -271,3 +271,128 @@
 
 ; 2.25 why do cons cells and the CONS function share the same name?
 ; because CONS creates a new cons cell
+
+
+; 2.26 what do these functions do when given the input (A B C)
+
+(length (cdr '(A B C)))
+; 2
+
+(cdr (length '(A B C))) ; The value BILLS is not of type LIST when binding LIST
+
+
+; 2.27 when does the internal representation of a list involve more cons cells
+; than the list has elements?
+; Nested lists
+
+
+; 2.28 using just CAR and CDR is it possible to write a function that returns
+; the last element of a list, no matter how long the list is?
+; No because you need to know how long the list is
+
+
+; 2.29 write a function UNARY-ADD1 that increases a unary number by one
+(defun unary-add1 (l)
+  (cons 'X l))
+
+(unary-add1 nil)
+; (X)
+
+(unary-add1 '())
+; (X)
+
+(unary-add1 '(X))
+; (X X)
+
+
+; 2.30 what does the CDDR function do to unary numbers?
+(cddr nil)
+; NIL
+
+(cddr '())
+; NIL
+
+(cddr '(X))
+; NIL
+
+(cddr '(X X))
+; NIL
+
+(cddr '(X X X))
+; (X)
+
+(cddr '(X X X X))
+; (X X)
+
+
+; 2.31 write a UNARY-ZEROP predicate
+(defun unary-zerop (l)
+  (null l))
+
+(unary-zerop nil)
+; T
+
+(unary-zerop '())
+; T
+
+(unary-zerop '(X))
+; NIL
+
+
+; 2.32 write a UNARY-GREATERP predicate, analogous to the > predicate on ordinary
+; numbers
+(defun unary-greaterp (x y)
+  (> (length x) (length y)))
+
+(> 2 1)
+; T
+
+(> 1 1)
+; NIL
+
+(> 1 2)
+; NIL
+
+(unary-greaterp '(X X) '(X))
+; T
+
+(unary-greaterp '(X) '(X))
+; NIL
+
+(unary-greaterp '(X) '(X X))
+; NIL
+
+
+; 2.33 what question about a unary number does CAR answer?
+; whether the number is positive (T) or not (nil)
+(car '(X X))
+; X
+
+(car '(X))
+; X
+
+(car nil)
+; NIL
+
+(car '())
+; NIL
+
+
+; 2.34 write an expression involving cascaded calls to CONS to construct the
+; dotted list (A B C . D)
+(cons 'A (cons 'B (cons 'C 'D)))
+; (A B C . D)
+
+
+; 2.35 draw the dotted list ((A . B) (C . D)) and write an expression to construct
+; the list
+; [.|.]------------------>[.|.]------------------->NIL
+;  |                       |
+; [A|.]---->B             [C|.]---->D
+
+(list (cons 'A 'B) (cons 'C 'D))
+; ((A . B) (C . D))
+
+
+; 2.26 prove by contradiction that this list cannot be constructed using CONS
+; it will result in an error by trying to take the CDR of length (a number)
