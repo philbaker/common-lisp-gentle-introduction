@@ -95,3 +95,117 @@
 ; 3.8 how would you define SQUARE in box notation
 ; SQUARE
 ; -----[ * ]----->
+
+
+; 3.9 the following expressions evaluate without any errors. Write down the results
+(cons 5 (list 6 7))
+; (5 6 7)
+
+(cons 5 '(list 6 7))
+; (5 LIST 6 7)
+
+(list 3 'from 9 'gives (- 9 3))
+; (3 FROM 9 GIVES 6)
+
+(+ (length '(1 foo 2 moo))
+   (third '(1 foo 2 moo)))
+; 6
+
+(rest '(cons is short for construct))
+; (IS SHORT FOR CONSTRUCT)
+
+
+; 3.10 The following expressions have errors. Write down the errors and what
+; caused them, correct the expression by changing only the quotes
+
+; (third (the quick brown fox)) - the inner list should be quoted
+(third '(the quick brown fox))
+; BROWN
+
+; (list 2 and 2 is 4) - and, is should be quoted
+(list 2 'and 2 'is 4)
+; (2 AND 2 IS 4)
+
+; (+ 1 '(length (list t t t t))) - the quote is causing this error
+(+ 1 (length (list t t t t)))
+; 5
+
+; (cons 'patrick (seymour marvin)) - the inner list should be quoted
+(cons 'patrick '(symour marvin))
+; (PATRICK SYMOUR MARVIN)
+
+; (cons 'patrick (list seymour marvin)) - seymour and marvin should be quoted
+(cons 'patrick '(list seymour marvin))
+; (PATRICK LIST SEYMOUR MARVIN)
+
+; 3.11 define a predicate called LONGER-THAN that takes two lists as input and
+; returns T if the first list is longer than the second
+(defun longer-than (x y)
+  (> (length x) (length y)))
+
+(longer-than '(a b c) '(1 2 3 4))
+; NIL
+
+(longer-than '(a b c d e) '(1 2 3 4))
+; T
+
+
+; 3.12 write a function ADDLENGTH that takes a list as input and returns a 
+; new list with the length of the input added onto the front of it
+(defun addlength (l)
+  (cons (length l) l))
+
+(addlength '(MOO GOO GAI PAN))
+; (4 MOO GOO GAI PAN)
+
+(addlength (addlength '(A B C)))
+; (4 3 A B C)
+
+
+; 3.13 study the function CALL-UP.
+; How many arguments does it require? 2
+; What are the names of the arguments? caller and callee
+
+(defun call-up (caller callee)
+  (list 'hello callee 'this 'is caller 'calling))
+
+(call-up 'FRED 'WANDA)
+; (HELLO WANDA THIS IS FRED CALLING)
+
+(defun crank-call (caller callee)
+  '(hello callee this is caller calling))
+
+(crank-call 'WANDA 'FRED)
+; (HELLO CALLEE THIS IS CALLER CALLING)
+
+
+; 3.15 consider the scrabble function
+; the symbol WORD is used in two different ways in this function -
+; what are they? it is passed as a value and as a quoted value to list
+
+(defun scrabble (word)
+  (list word 'is 'a 'word))
+
+(scrabble 'aardvark)
+; (AARDVARK IS A WORD)
+
+(scrabble 'word)
+; (WORD IS A WORD)
+
+
+; 3.16
+(defun stooge (larry moe curly)
+  (list larry (list 'moe curly) curly 'larry))
+
+(stooge 'moe 'curly 'larry)
+; (MOE (MOE LARRY) LARRY LARRY)
+
+
+; 3.17 why can't the special symbols T or Nil be used as variables in a function
+; definition?
+; because they evaluate to themselves
+
+
+; 3.18 name two advantages of eval notation over box notation
+; 1. It is closer to the final lisp code
+; 2. It is more concise
