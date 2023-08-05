@@ -209,3 +209,99 @@
 ; 3.18 name two advantages of eval notation over box notation
 ; 1. It is closer to the final lisp code
 ; 2. It is more concise
+
+
+; 3.19 evaluate each of the following lists. If the list causes an error, tell
+; what the error is. Otherwise, write the result of the evaluation
+(cons 'grapes '(of wrath))
+; (GRAPES OF WRATH)
+
+(list t 'is 'not nil)
+; (T IS NOT NIL)
+
+(first '(list moose goose))
+; LIST
+
+; (cons 'home ('sweet 'home)) ; Compile-time error: illegal function call
+
+
+; 3.20 what is the result or error of the following function calls?
+(defun mystery (x)
+  (list (second x) (first x)))
+
+ (mystery '(dancing bear))
+; (BEAR DANCING)
+
+ ; (mystery 'dancing 'bear) ; invalid number of arguments: 2
+
+(mystery '(zowie))
+; (NIL ZOWIE)
+
+ (mystery (list 'first 'second))
+; (SECOND FIRST)
+
+
+; 3.21 what is wrong with each of the following function definitions?
+(defun speak (x y) 
+  (list 'all 'x 'is 'y))
+
+(speak "hello" "world")
+; (ALL X IS Y)
+
+ (defun speak-2 (x) (y)
+   (list 'all x 'is y))
+
+; (speak-2 "hello" "world") ; invalid number of arguments: 2
+
+; (defun speak-3 ((x) (y))
+;   (list all 'x is 'y)) Required argument is not a symbol: (X)
+
+
+; 3.22 
+; b. evaluate the following
+(+ 3 5)
+; 8
+
+ ; (3 + 5) - Compile-time error: illegal function call
+
+; (+ 3 (5 6)) - Compile-time error: illegal function call
+
+'(morning noon night)
+; (MORNING NOON NIGHT)
+
+; ('morning 'noon 'night) - Compile-time error: illegal function call
+
+(list 'morning 'noon 'night)
+; (MORNING NOON NIGHT)
+
+(car nil)
+; NIL
+
+; (+ 3 foo) - The variable FOO is unbound.
+
+; (+ 3 'foo) - The value FOO is not of type NUMBER when binding SB-KERNEL::Y
+
+; c. write the function MYFUN based on this output (myfun 'alpha 'beta) => ((ALPHA) BETA)
+(defun myfun (x y)
+  (list (list x) y))
+
+ (myfun 'alpha 'beta)
+; ((ALPHA) BETA)
+
+; write a predicate FIRSTP that returns T if its first argument is equal to the
+; first element of its second argument
+(defun firstp (s l)
+  (equal s (first l)))
+
+(firstp 'foo '(foo bar baz))
+; T
+
+(firstp 'boing '(foo bar baz))
+; NIL
+
+; e. write a function MID-ADD1 that adds 1 to the middle element of a three-element list
+ (defun mid-add1 (l)
+   (list (first l) (+ (second l) 1) (third l)))
+
+(mid-add1 '(take 2 cookies))
+; (TAKE 3 COOKIES)
