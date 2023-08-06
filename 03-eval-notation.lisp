@@ -305,3 +305,91 @@
 
 (mid-add1 '(take 2 cookies))
 ; (TAKE 3 COOKIES)
+
+; f. write a function F-TO-C that converts a temperature from farenheit to celcius
+(defun f-to-c (n)
+  (float (/ (* 5 (- n 32)) 9)))
+
+(defun c-to-f (n)
+  (+ (* (/ 9 5) n) 32))
+
+(f-to-c 32)
+; 0.0
+
+(c-to-f 0)
+; 32
+
+(f-to-c 100)
+; 37.77778
+
+(c-to-f 37.77778)
+; 100.0
+
+; g. what is wrong with (defun foo (x) (+ 1 (zerop x)))
+; it is attempting to add a number to a boolean value
+; (defun foo (x) (+ 1 (zerop x)))
+; (foo 5) ;   NIL, not a NUMBER.
+
+
+; 3.23 write DOUBLE, SQUARE and ONEMOREP in Church's lambda notation
+; Double
+; λx. (x*2)
+; Square
+; λx. (x*x)
+; Onemorep
+; λ(x,y). (x=y+1)
+
+
+; 3.24 draw an evaltrace diagram of the following
+(defun alpha (x)
+  (bravo (+ x 2) (charlie x 1)))
+
+(defun bravo (y z) (* y z))
+
+(defun charlie (y x) (- y x))
+
+(alpha 3)
+; 10
+
+; (alpha 3)
+; Enter ALPHA with input 3
+  ; create variable x with value 3
+    ; (bravo (+ x 2) (charlie x 1))
+      ; (+ x 2)
+      ; 5
+      ; (charlie x 1)
+      ; Enter CHARLIE with inputs 3 and 1
+        ; create variable y with value 3
+        ; create variable x with value 1
+        ; (- y x)
+        ; 2
+      ; Result of CHARLIE is 2
+    ; Enter BRAVO with inputs 5 and 2
+      ; create variable y with value 5
+      ; create variable z with value 2
+      ; (* y z)
+      ; 10
+  ; Result of Bravo is 10
+; Result of ALPHA is 10
+
+
+; 3.25 what do each of the following expressions evaluate to?
+(list 'cons t nil)
+; (CONS T NIL)
+
+(eval (list 'cons t nil))
+; (T)
+
+; (eval (eval (list 'cons t nil))) - The function COMMON-LISP:T is undefined.
+
+(apply #'cons '(t nil))
+; (T)
+
+(eval nil)
+; NIL
+
+(list 'eval nil)
+; (EVAL NIL)
+
+(eval (list 'eval nil))
+; NIL
