@@ -241,16 +241,154 @@
 
 
 ; 4.13 write a function HOWCOMPUTE that is the inverse of the defined COMPUTE function
+; ways to extend howcompute:
+; - subtraction
+; - division
+; - find square root
+; - find cube value
 (defun compute (op x y)
   (cond ((equal op 'sum-of) (+ x y))
         ((equal op 'product-of) (* x y))
         (t '(that does not compute))))
 
+(defun howcompute (x y res)
+  (cond ((equal (+ x y) res) 'sum-of)
+        ((equal (* x y) res) 'product-of)
+        (t '(beats me))))
+
 (compute 'sum-of 3 7)
 ; 10
+
+(howcompute 3 7 10)
+; SUM-OF
 
 (compute 'product-of 2 4)
 ; 8
 
+(howcompute 2 4 8)
+; PRODUCT-OF
+
 (compute 'zorch-of 3 1)
 ; (THAT DOES NOT COMPUTE)
+
+(howcompute 3 1 55)
+; (BEATS ME)
+
+
+; 4.14 what results do the following expressions produce?
+
+(and 'fee 'fie 'fum)
+; FUM
+
+(or 'fee 'fie 'foe)
+; FEE
+
+(or nil 'foe nil)
+; FOE
+
+(and 'fee 'fie nil)
+; NIL
+
+(and (equal 'abc 'abc) 'yes)
+; YES
+
+(or (equal 'abc 'abc) 'yes)
+; T
+
+
+; 4.15 write a predicate called GEQ that returns T if its first input is greater
+; than or equal to its second input
+(defun geq (x y)
+  (if (>= x y)
+    t
+    nil))
+
+(geq 5 5)
+; T
+
+(geq 8 5)
+; T
+
+(geq 1 5)
+; NIL
+
+
+; 4.16 write a function that squares a number if it is odd and positive, doubles
+; it if it is odd and negative, and otherwise divides by 2
+(defun my-calc (x)
+  (cond ((and (oddp x) (> x 0)) (* x x))
+        ((and (oddp x) (< x 0)) (* x 2))
+        (t (/ x 2))))
+
+(my-calc 3)
+; 9
+
+(my-calc -3)
+; -6
+
+(my-calc 6)
+; 3
+
+(my-calc -6)
+; -3
+
+
+; 4.17 write a predicate that returns T if the first input is BOY or GIRL,
+; and the second input is CHILD, or the first input is either MAN or WOMAN and
+; the second input is ADULT
+(defun child-or-adult (x y)
+  (or (and (or (equal x 'BOY) 
+               (equal x 'GIRL)) 
+           (equal y 'CHILD))
+      (and (or (equal x 'MAN) 
+               (equal x 'WOMAN)) 
+           (equal y 'ADULT))))
+
+ (child-or-adult 'BOY 'CHILD)
+; T
+
+ (child-or-adult 'BOY 'ADULT)
+; NIL
+
+ (child-or-adult 'GIRL 'CHILD)
+; T
+
+ (child-or-adult 'GIRL 'ADULT)
+; NIL
+
+ (child-or-adult 'MAN 'ADULT)
+; T
+
+ (child-or-adult 'MAN 'CHILD)
+; NIL
+
+ (child-or-adult 'WOMAN 'ADULT)
+; T
+
+ (child-or-adult 'WOMAN 'CHILD)
+; NIL
+
+ (child-or-adult 'CHAIR 'ADULT)
+; NIL
+
+
+; 4.18 write a function to act as a referee in Rock-Paper-Scissors
+(defun play-rps (x y)
+  (cond ((equal x y) 'tie)
+        ((or (and (equal x 'rock)
+                  (equal y 'scissors))
+             (and (equal x 'scissors)
+                  (equal y 'paper))
+             (and (equal x 'paper)
+                  (equal y 'rock)))
+         'first-wins)
+        (t 'second-wins)))
+
+(play-rps 'scissors 'scissors)
+; TIE
+
+(play-rps 'rock 'scissors)
+; FIRST-WINS
+
+(play-rps 'rock 'paper)
+; SECOND-WINS
