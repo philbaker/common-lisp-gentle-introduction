@@ -392,3 +392,156 @@
 
 (play-rps 'rock 'paper)
 ; SECOND-WINS
+
+
+; 4.19 show how to write (AND X Y Z W) using COND instead of AND. Then show
+; how to write it with nested IFs
+(and 'x 'y 'z 'w)
+; W
+
+(cond ((not 'x) nil)
+      ((not 'y) nil)
+      ((not 'z) nil)
+      (t 'w))
+; W
+
+(if 'x
+  (if 'y
+    (if 'z 'w)))
+; W
+
+
+; 4.20 write a version of COMPARE using IF instead of COND. Also write a version
+; using AND and OR
+(defun compare (x y)
+  (cond ((equal x y) 'numbers-are-the-same)
+        ((< x y) 'first-is-smaller)
+        ((> x y) 'first-is-bigger)))
+
+(defun compare-if (x y)
+  (if (equal x y)
+    'numbers-are-the-same
+    (if (< x y)
+      'first-is-smaller
+      'first-is-bigger)))
+
+(defun compare-and-or (x y)
+  (or
+    (and (equal x y) 'numbers-are-the-same)
+    (and (< x y) 'first-is-smaller)
+    'first-is-bigger))
+
+(compare 1 1)
+; NUMBERS-ARE-THE-SAME
+
+(compare-if 1 1)
+; NUMBERS-ARE-THE-SAME
+
+(compare-and-or 1 1)
+; NUMBERS-ARE-THE-SAME
+
+(compare 1 5)
+; FIRST-IS-SMALLER
+
+(compare-if 1 5)
+; FIRST-IS-SMALLER
+
+(compare-and-or 1 5)
+; FIRST-IS-SMALLER
+
+(compare 5 1)
+; FIRST-IS-BIGGER
+
+(compare-if 5 1)
+; FIRST-IS-BIGGER
+
+(compare-and-or 5 1)
+; FIRST-IS-BIGGER
+
+
+; 4.21 write versions of GTEST using IF and COND
+(defun gtest (x y)
+  (or (> x y)
+      (zerop x)
+      (zerop y)))
+
+(defun gtest-if (x y)
+  (if 
+    (> x y) t
+    (if 
+      (zerop x) t
+      (zerop y))))
+
+(defun gtest-cond (x y)
+  (cond ((> x y) t)
+        ((zerop x) t)
+        (t (zerop y))))
+
+(gtest 5 1)
+; T
+
+(gtest-if 5 1)
+; T
+
+(gtest-cond 5 1)
+; T
+
+(gtest 5 5)
+; NIL
+
+(gtest-if 5 5)
+; NIL
+
+(gtest-cond 5 5)
+; NIL
+
+(gtest 0 0)
+; T
+
+(gtest-if 0 0)
+; T
+
+(gtest-cond 0 0)
+; T
+
+(gtest -5 0)
+; T
+
+(gtest-if -5 0)
+; T
+
+(gtest-cond -5 0)
+; T
+
+(gtest 0 -5)
+; T
+
+(gtest-if 0 -5)
+; T
+
+(gtest-cond 0 -5)
+; T
+
+; 4.22 write a predicate BOILINGP using COND, IF and AND/OR
+; Rules:
+; - takes two inputs: TEMP and SCALE
+; - returns T if temp is above boiling point specified in scale
+; - if scale is fahrenheit the boiling point is 212 degrees
+; - if scale is celsius the boiling point is 100 degrees
+(defun boilingp (temp scale)
+  (cond
+    ((and (> temp 212) (equal scale 'fahrenheit)) t)
+    ((and (> temp 100) (equal scale 'celsius)) t)
+    (t nil)))
+
+(boilingp 201 'fahrenheit)
+; NIL
+
+(boilingp 250 'fahrenheit)
+; T
+
+(boilingp 50 'celsius)
+; NIL
+
+(boilingp 150 'celsius)
+; T
