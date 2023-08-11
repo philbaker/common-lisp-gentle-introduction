@@ -534,14 +534,131 @@
     ((and (> temp 100) (equal scale 'celsius)) t)
     (t nil)))
 
+(defun boilingp-if (temp scale)
+  (if 
+    (and (> temp 212) (equal scale 'fahrenheit)) 
+    t
+    (if
+      (and (> temp 100) (equal scale 'celsius)) 
+      t
+      nil)))
+
+(defun boilingp-and-or (temp scale)
+  (or (and (> temp 212) (equal scale 'fahrenheit))
+      (and (> temp 100) (equal scale 'celsius))))
+
 (boilingp 201 'fahrenheit)
+; NIL
+
+(boilingp-if 201 'fahrenheit)
+; NIL
+
+(boilingp-and-or 201 'fahrenheit)
 ; NIL
 
 (boilingp 250 'fahrenheit)
 ; T
 
+(boilingp-if 250 'fahrenheit)
+; T
+
+(boilingp-and-or 250 'fahrenheit)
+; T
+
 (boilingp 50 'celsius)
+; NIL
+
+(boilingp-if 50 'celsius)
+; NIL
+
+(boilingp-and-or 50 'celsius)
 ; NIL
 
 (boilingp 150 'celsius)
 ; T
+
+(boilingp-if 150 'celsius)
+; T
+
+(boilingp-and-or 150 'celsius)
+; T
+
+
+; 4.23 if WHERE-IS had eight COND clauses, how many IFs, ORs and ANDs would equivalent functions need?
+; 7 IFS
+; 1 OR and 7 ANDs
+
+
+; 4.24 why are conditionals important?
+; they let you make decisions in a program
+
+
+; 4.25 what does IF do if given two inputs instead of three
+; it will return the last argument
+(if
+  t
+  'hello
+  nil)
+; HELLO
+
+(if
+  t
+  nil)
+; NIL
+
+
+; 4.26 You can always write a COND using IF because IF expressions can be nested
+
+
+; 4.27 what does COND return if given no clauses, in other words what does COND evaluate to?
+; it will return nil
+
+
+; 4.28 suggest a more sophisticated way to rewrite IF as a combination of ANDs and
+; ORs that does not fail
+(if
+  (oddp 5)
+  (evenp 7)
+  'foo)
+; NIL
+
+(or 
+  (and (oddp 5) 
+       (evenp 7)) 
+  'foo)
+; FOO
+
+(or (and (oddp 5) (evenp 7))
+    (and (not (oddp 5)) 'foo))
+; NIL
+
+
+; 4.29 write versions of LOGICAL-AND using IF and COND instead of AND
+(defun logical-and (x y)
+  (and y x t))
+
+(defun logical-and-if (x y)
+  (if x
+    (if y
+      t)))
+
+(defun logical-and-cond (x y)
+  (cond (x (cond (y t)))))
+
+(logical-and 'a 'b)
+; T
+
+(logical-and-if 'a 'b)
+; T
+
+(logical-and-cond 'a 'b)
+; T
+
+(logical-and 'a nil)
+; NIL
+
+(logical-and-if 'a nil)
+; NIL
+
+(logical-and-cond 'a nil)
+; NIL
