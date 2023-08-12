@@ -662,3 +662,145 @@
 
 (logical-and-cond 'a nil)
 ; NIL
+
+; 4.30 write a LOGICAL-OR function
+(defun logical-or (x y)
+  (or (if x t) 
+      (if y t)))
+
+(logical-or nil t)
+; T
+
+(logical-or nil nil)
+; NIL
+
+(logical-or 'a 'b)
+; T
+
+
+; 4.31 NOT is a boolean function
+(not 1)
+; NIL
+
+(not nil)
+; T
+
+(not t)
+; NIL
+
+(not 'a)
+; NIL
+
+; 4.32 write a truth table for LOGICAL-OR 
+
+; from https://gist.github.com/WetHat/a49e6f2140b401a190d45d31e052af8f
+(defconstant +CELL-FORMATS+ '(:left   "~vA"
+                              :center "~v:@<~A~>"
+                              :right  "~v@A"))
+
+(defun format-table (stream data &key (column-label (loop for i from 1 to (length (car data))
+                                                          collect (format nil "COL~D" i)))
+                                      (column-align (loop for i from 1 to (length (car data))
+                                                          collect :left)))
+    (let* ((col-count (length column-label))
+           (strtable  (cons column-label ; table header
+                          (loop for row in data ; table body with all cells as strings
+                              collect (loop for cell in row
+                                           collect (if (stringp cell)
+                                                        cell
+                                                    ;else
+                                                        (format nil "~A" cell))))))
+           (col-widths (loop with widths = (make-array col-count :initial-element 0)
+                           for row in strtable
+                           do (loop for cell in row
+                                    for i from 0
+                                  do (setf (aref widths i)
+                                         (max (aref widths i) (length cell))))
+                           finally (return widths))))
+        ;------------------------------------------------------------------------------------
+        ; splice in the header separator
+        (setq strtable
+              (nconc (list (car strtable) ; table header
+                           (loop for align in column-align ; generate separator
+                                 for width across col-widths
+                               collect (case align
+                                           (:left   (format nil ":~v@{~A~:*~}"
+                                                        (1- width)  "-"))
+                                           (:right  (format nil "~v@{~A~:*~}:"
+                                                        (1- width)  "-"))
+                                           (:center (format nil ":~v@{~A~:*~}:"
+                                                        (- width 2) "-")))))
+                           (cdr strtable))) ; table body
+        ;------------------------------------------------------------------------------------
+        ; Generate the formatted table
+        (let ((row-fmt (format nil "| ~{~A~^ | ~} |~~%" ; compile the row format
+                           (loop for align in column-align
+                               collect (getf +CELL-FORMATS+ align))))
+              (widths  (loop for w across col-widths collect w)))
+            ; write each line to the given stream
+            (dolist (row strtable)
+                (apply #'format stream row-fmt (mapcan #'list widths row))))))
+
+(defvar logical-and-table
+  '((T T T)
+    (T NIL NIL)
+    (NIL T NIL)
+    (NIL NIL NIL)))
+
+(format-table t logical-and-table
+              :column-label '("x" "y" "(LOGICAL-AND x y)")
+              :column-align '(:center :center :center))
+; |  x  |  y  | (LOGICAL-AND x y) |
+; | :-: | :-: | :---------------: |
+; |  T  |  T  |         T         |
+; |  T  | NIL |        NIL        |
+; | NIL |  T  |        NIL        |
+; | NIL | NIL |        NIL        |
+
+(defvar logical-or-table
+  '((T T T)
+    (T NIL T)
+    (NIL T T)
+    (NIL NIL NIL)))
+
+(format-table t logical-or-table
+              :column-label '("x" "y" "(LOGICAL-OR x y)")
+              :column-align '(:center :center :center))
+; |  x  |  y  | (LOGICAL-OR x y) |
+; | :-: | :-: | :--------------: |
+; |  T  |  T  |        T         |
+; |  T  | NIL |        T         |
+; | NIL |  T  |        T         |
+; | NIL | NIL |       NIL        |
+
+
+; 4.33 how many lines in a truth table would there be for LOGICAL-IF - a function
+; which takes 3 arguments?
+(* 2 2 2)
+; 8
+
+
+; 4.34 write the truth table for LOGICAL-IF
+(defvar logical-if-table
+  '((T T T T)
+    (T NIL T NIL)
+    (T T NIL T)
+    (T NIL NIL NIL)
+    (NIL NIL NIL NIL)
+    (NIL T NIL NIL)
+    (NIL NIL T T)
+    (NIL T T T)))
+
+(format-table t logical-if-table
+              :column-label '("x" "y" "z" "(LOGICAL-IF x y)")
+              :column-align '(:center :center :center :center))
+; |  x  |  y  |  z  | (LOGICAL-IF x y) |
+; | :-: | :-: | :-: | :--------------: |
+; |  T  |  T  |  T  |        T         |
+; |  T  | NIL |  T  |       NIL        |
+; |  T  |  T  | NIL |        T         |
+; |  T  | NIL | NIL |       NIL        |
+; | NIL | NIL | NIL |       NIL        |
+; | NIL |  T  | NIL |       NIL        |
+; | NIL | NIL |  T  |        T         |
+; | NIL |  T  |  T  |        T         |
