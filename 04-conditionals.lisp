@@ -804,3 +804,183 @@
 ; | NIL |  T  | NIL |       NIL        |
 ; | NIL | NIL |  T  |        T         |
 ; | NIL |  T  |  T  |        T         |
+
+; DeMorgan's theorem
+; (and x y) = (not (or (not x) (not y)))
+; (or x y) = (not (and (not x) (not y)))
+
+(defun demorgan-and (x y)
+  (not (or (not x) (not y))))
+
+(defun demorgan-or (x y)
+  (not (and (not x) (not y))))
+
+(logical-and t t)
+; T
+(demorgan-and t t)
+; T
+(logical-and t nil)
+; NIL
+(demorgan-and t nil)
+; NIL
+(logical-or t nil)
+; T
+(demorgan-or t nil)
+; T
+(logical-or nil nil)
+; NIL
+(demorgan-or nil nil)
+; NIL
+
+
+; 4.35 write down the DeMorgan equations for three-input versions of AND and OR
+; (and 'a 'b 'c)
+; (or nil nil 'c)
+; and
+(equal (and t t t) (not (or (not t) (not t) (not t))))
+; T
+; or
+(equal (or t t t) (not (and (not t) (not t) (not t))))
+; T
+
+
+; 4.36 write a truth table for NAND
+(defun nand (x y)
+  (not (and x y)))
+
+(defvar nand-table
+  '((T T NIL)
+    (T NIL T)
+    (NIL T T)
+    (NIL NIL T)))
+
+(format-table t nand-table
+              :column-label '("x" "y" "(NAND x y)")
+              :column-align '(:center :center :center))
+; |  x  |  y  | (NAND x y) |
+; | :-: | :-: | :--------: |
+; |  T  |  T  |     T      |
+; |  T  | NIL |     T      |
+; | NIL |  T  |     T      |
+; | NIL | NIL |    NIL     |
+
+
+; 4.37 Construct versions of LOGICAL-AND and LOGICAL-OR by putting together
+; NANDs
+(defun logical-and-nand (x y)
+  (nand (nand x y) (nand x y)))
+
+(logical-and t t)
+; T
+(logical-and-nand t t)
+; T
+(logical-and t nil)
+; NIL
+(logical-and-nand t nil)
+; NIL
+(logical-and nil t)
+; NIL
+(logical-and-nand nil t)
+; NIL
+(logical-and nil nil)
+; NIL
+(logical-and-nand nil nil)
+; NIL
+
+(defun logical-or (x y)
+  (or (if x t) 
+      (if y t)))
+
+(defun logical-or-nand (x y)
+  (nand (nand x x) (nand y y)))
+
+(logical-or t t)
+; T
+(logical-or-nand t t)
+; T
+(logical-or nil t)
+; T
+(logical-or-nand nil t)
+; T
+(logical-or t nil)
+; T
+(logical-or-nand t nil)
+; T
+(logical-or nil nil)
+; NIL
+(logical-or-nand nil nil)
+; NIL
+
+
+; 4.38 write versions of NOT, LOGICAL-AND, NAND and LOGICAL-OR by putting NORs
+; together
+(defun nor (x y)
+  (not (or x y)))
+
+(defun not-nor (x)
+  (nor x x))
+
+(not t)
+; NIL
+(not nil)
+; T
+(not-nor t)
+; NIL
+(not-nor nil)
+; T
+
+(defun logical-and-nor (x y)
+  (nor (nor x x) (nor y y)))
+
+(logical-and t t)
+; T
+(logical-and-nor t t)
+; T
+(logical-and t nil)
+; NIL
+(logical-and-nor t nil)
+; NIL
+(logical-and nil t)
+; NIL
+(logical-and nil nil)
+; NIL
+
+(defun nor-nand (x y)
+  (nor (and x y) (and x y)))
+
+(nand t t)
+; NIL
+(nor-nand t t)
+; NIL
+(nand t nil)
+; T
+(nor-nand t nil)
+; T
+(nand nil t)
+; T
+(nor-nand nil t)
+; T
+(nand nil nil)
+; T
+(nor-nand nil nil)
+; T
+
+(defun logical-or-nor (x y)
+  (nor (nor x y) (nor x y)))
+
+(logical-or t t)
+; T
+(logical-or-nor t t)
+; T
+(logical-or t nil)
+; T
+(logical-or-nor t nil)
+; T
+(logical-or nil t)
+; T
+(logical-or-nor nil t)
+; T
+(logical-or nil nil)
+; NIL
+(logical-or-nor nil nil)
+; NIL
