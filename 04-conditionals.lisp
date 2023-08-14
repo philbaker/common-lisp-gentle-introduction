@@ -984,3 +984,7 @@
 ; NIL
 (logical-or-nor nil nil)
 ; NIL
+
+
+; 4.39 is LOGICAL-AND logically complete the way NAND and NOR are?
+; No because you can't make NOT from LOGICAL-AND
