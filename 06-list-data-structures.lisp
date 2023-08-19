@@ -208,3 +208,326 @@
 
 (add-vowels '(X A E Z))
 ; (U O I X A E Z)
+
+
+; 6.19 what are the results of using NIL as an input to SET-DIFFERENCE?
+(set-difference ducks nil)
+; (HUEY DEWEY LOUIE)
+
+(set-difference nil ducks)
+; NIL
+
+
+; 6.20 which of its two inputs does SET-DIFFERENCE need to copy? Which input 
+; never needs to be copied?
+(setf line1 '(all things in moderation))
+
+(setf line2 '(moderation in the defense of liberty is no virtue))
+
+(set-difference line1 line2)
+; (THINGS ALL)
+
+(set-difference line2 line1)
+; (VIRTUE NO IS LIBERTY OF DEFENSE THE)
+
+; The first input needs to be copied but the second one doesn't. This is because
+; the first input is returned minus the matches in the second input
+
+
+; 6.21 write the function MY-SUBSETP a version of SUBSETP that returns T if its
+; first input is a subset of its second input
+(subsetp '(a i) '(a e i o u))
+; T
+
+(subsetp '(a x) '(a e i o u))
+; NIL
+
+(defun my-subsetp (x y)
+  (not (set-difference x y)))
+
+(my-subsetp '(a i) '(a e i o u))
+; T
+
+(my-subsetp '(a x) '(a e i o u))
+; NIL
+
+
+; 6.22 what is the result of the following expressions?
+(setf a '(soap water))
+
+(union a '(no soap radio))
+; (RADIO NO SOAP WATER)
+
+(intersection a (reverse a))
+; (WATER SOAP)
+
+(set-difference a '(stop for water))
+; (SOAP)
+
+(set-difference a a)
+; NIL
+
+(member 'soap a)
+; (SOAP WATER)
+
+(member 'water a)
+; (WATER)
+
+(member 'washcloth a)
+; NIL
+
+
+; 6.23 what lisp primitive determines the cardinality of a set?
+(length '(a b c))
+
+
+; 6.24 write a SET-EQUAL predicate that returns T if two things are equal as sets
+(defun set-equal (x y)
+  (equal (subsetp x y) (subsetp y x)))
+
+(set-equal '(a b c) '(b c a))
+; T
+
+(set-equal '(a b c d) '(b c a))
+; NIL
+
+
+; 6.25 write the PROPER-SUBSETP predicate which returns T if its first input
+; is a proper subset of its second input
+(defun proper-subsetp (x y)
+  (and (subsetp x y)
+       (not (subsetp y x))))
+
+(proper-subsetp '(a c) '(c a b))
+; T
+
+(proper-subsetp '(a b c) '(c a b))
+; NIL
+
+; Programming with sets
+(defun titledp (name)
+  (member (first name) '(mr ms miss mrs)))
+
+(titledp '(jane doe))
+
+(titledp '(ms jane doe))
+; (MS MISS MRS)
+
+(setf male-first-names
+      '(john kim richard fred george))
+
+(setf female-first-names
+      '(jane mary wanda barbara kim))
+
+(defun malep (name)
+  (and (member name male-first-names)
+       (not (member name female-first-names))))
+
+(defun femalep (name)
+  (and (member name female-first-names)
+       (not (member name male-first-names))))
+
+(malep 'richard)
+; T
+
+(malep 'barbara)
+; NIL
+
+(femalep 'barbara)
+; T
+
+(malep 'kim)
+; NIL
+
+(defun give-title (name)
+  "Returns a name with an appropriate title on the front."
+  (cond ((titledp name) name)
+        ((malep (first name)) (cons 'mr name))
+        ((femalep (first name)) (cons 'ms name))
+        (t (append '(mr or ms) name))))
+
+(give-title '(miss jane adams))
+; (MISS JANE ADAMS)
+
+(give-title '(john q public))
+; (MR JOHN Q PUBLIC)
+
+(give-title '(barbara smith))
+; (MS BARBARA SMITH)
+
+(give-title '(kim johnson))
+; (MR OR MS KIM JOHNSON)
+
+(defun gender-ambiguous-names ()
+  (intersection male-first-names female-first-names))
+
+(gender-ambiguous-names)
+; (KIM)
+
+(defun uniquely-male-names ()
+  (set-difference male-first-names female-first-names))
+
+(uniquely-male-names)
+; (GEORGE FRED RICHARD JOHN)
+
+; 6.26
+(setf list-shapes '(large red shiny cube -vs- small shiny red four-sided pyramid))
+
+; a. write a RIGHT-SIDE function that returns all features to the right of the
+; -VS- symbol
+(defun right-side (l)
+  (cdr (member '-vs- l)))
+
+
+(right-side list-shapes)
+
+; b. write a function LEFT-SIDE that returns all the features to the lef of the
+; -VS-
+(defun left-side (l)
+  (reverse (cdr (member '-vs- (reverse l)))))
+
+; c. write a function COUNT-COMMON that returns the number of features the left
+; and right sides of the input have in common
+(defun count-common (l)
+  (length 
+    (intersection (left-side l) 
+                  (right-side l))))
+
+(count-common list-shapes)
+; 2
+
+; d. write the main function COMPARE that takes a list of features and returns
+; (n COMMON FEATURES)
+(defun compare (l)
+  (list (count-common l) 'common 'features))
+
+(compare list-shapes)
+; (2 COMMON FEATURES)
+
+(compare '(small red metal cube -vs- red plastic small cube))
+; (3 COMMON FEATURES)
+
+
+; 6.27 should ASSOC be considered a predicate even though it never returns T?
+; Yes because it either returns an entry in a table or nil
+
+
+; 6.28 assoc and rassoc - evaluate the following
+(setf produce 
+      '((apple . fruit) 
+        (celery . veggie)
+        (banana . fruit)
+        (lettuce . veggie)))
+
+(assoc 'banana produce)
+; (BANANA . FRUIT)
+
+(rassoc 'fruit produce)
+; (APPLE . FRUIT)
+
+(assoc 'lettuce produce)
+; (LETTUCE . VEGGIE)
+
+(rassoc 'veggie produce)
+; (CELERY . VEGGIE)
+
+
+; Programming with tables
+(setf things
+      '((object1 large green shiny cube)
+        (object2 small red dull metal cube)
+        (object3 red small dull plastic cube)
+        (object4 small dull blue metal cube)
+        (object5 small shiny red four-sided pyramid)
+        (object6 large shiny green sphere)))
+
+(defun description (x)
+  (rest (assoc x things)))
+
+(description 'object3)
+; (RED SMALL DULL PLASTIC CUBE)
+
+(defun differences (x y)
+  (set-exclusive-or (description x)
+                    (description y)))
+
+(differences 'object2 'object3)
+; (PLASTIC METAL)
+
+(setf quality-table
+      '((large . size)
+        (small . size)
+        (red . color)
+        (green . color)
+        (blue . color)
+        (shiny . luster)
+        (dull . luster)
+        (metal . material)
+        (plastic . material)
+        (cube . shape)
+        (sphere . shape)
+        (pyramid . shape)
+        (four-sided . shape)))
+
+(defun quality (x)
+  (cdr (assoc x quality-table)))
+
+(quality 'red)
+; COLOR
+
+(quality 'large)
+; SIZE
+
+(defun quality-difference (x y)
+  (quality (first (differences x y))))
+
+(quality-difference 'object2 'object3)
+; MATERIAL
+
+(quality-difference 'object2 'object6)
+; SHAPE
+
+(quality-difference 'object2 'object4)
+; COLOR
+
+(differences 'object3 'object4)
+; (METAL BLUE PLASTIC RED)
+
+(sublis quality-table
+        (differences 'object3 'object4))
+; (MATERIAL COLOR MATERIAL COLOR)
+
+(defun contrast (x y)
+  (remove-duplicates
+    (sublis quality-table (differences x y))))
+
+(contrast 'object3 'object4)
+; (MATERIAL COLOR)
+
+
+; 6.29. what Lisp primitive returns the number of entries in a table?
+; LENGTH
+
+; 6.30. make a table called BOOKS of five books and their authors 
+(setf books '((war-and-peace leo-tolstoy)
+              (harry-potter j-k-rowling)
+              (hamlet william-shakespeare)
+              (miss-marple agatha-christie)
+              (dragon-ball akira-toriyama)))
+
+
+; 6.31. write the function WHO-WROTE that takes the name of a book as input
+; and returns the book's author
+(defun who-wrote (x)
+  (second (assoc x books)))
+
+(who-wrote 'hamlet)
+; WILLIAM-SHAKESPEARE
+
+
+; 6.32. what happens if we change the order books?
+; nothing because we are looking up values by named key
+(setf books (reverse books))
+
+(who-wrote 'hamlet)
+; WILLIAM-SHAKESPEARE
