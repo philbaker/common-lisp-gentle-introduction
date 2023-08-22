@@ -531,3 +531,316 @@
 
 (who-wrote 'hamlet)
 ; WILLIAM-SHAKESPEARE
+
+
+; 6.33. write a WHAT-WROTE function that takes an author's name as input and
+; returns the title of one of their books
+(setf books2 '((war-and-peace . leo-tolstoy)
+               (harry-potter . j-k-rowling)
+               (hamlet . william-shakespeare)
+               (miss-marple . agatha-christie)
+               (dragon-ball . akira-toriyama)))
+
+(defun what-wrote (x)
+  (first (rassoc x books2)))
+
+(what-wrote 'leo-tolstoy)
+; WAR-AND-PEACE
+
+
+; 6.34. redesign the ATLAS table so that assoc can be used successfully
+(setf atlas
+      '((pennsylvania (pittsburgh johnstown))
+        (ohio (columbus))
+        (new-jersey (newark princeton trenton))))
+
+(second (assoc 'new-jersey atlas))
+; (NEWARK PRINCETON TRENTON)
+
+(second (assoc 'pennsylvania atlas))
+; (PITTSBURGH JOHNSTOWN)
+
+(second (assoc 'ohio atlas))
+; (COLUMBUS)
+
+
+; 6.35. simulate the behavior of Nerdus Americanus
+; a. design a data structure to capture its five states
+(setf nerd-states '((sleeping . eating)
+                    (eating . waiting)
+                    (waiting . programming)
+                    (programming . debugging)
+                    (debugging . sleeping)))
+
+; b. write a function NERDUS that given the name of a state returns its successor
+(defun nerdus (x)
+  (cdr (assoc x nerd-states)))
+
+(nerdus 'sleeping)
+; EATING
+(nerdus 'eating)
+; WAITING
+(nerdus 'waiting)
+; PROGRAMMING
+(nerdus 'programming)
+; DEBUGGING
+(nerdus 'debugging)
+; SLEEPING
+
+; c. what is the result of (NERDUS 'PLAYING-GUITAR)
+(nerdus 'playing-guitar)
+; NIL
+
+; d. write a function SLEEPLESS that works like NERDUS except it never sleeps
+(defun sleepless (x)
+   (let ((y (nerdus x)))
+     (if (equal y 'sleeping)
+       (nerdus y)
+       y)))
+
+(sleepless 'eating)
+; WAITING
+(sleepless 'waiting)
+; PROGRAMMING
+(sleepless 'programming)
+; DEBUGGING
+(sleepless 'debugging)
+; EATING
+
+; e. write a function NERD-ON-CAFFEINE that advances two states instead of one
+(defun nerd-on-caffeine (x)
+  (nerdus (nerdus x)))
+
+(nerd-on-caffeine 'sleeping)
+; WAITING
+(nerd-on-caffeine 'eating)
+; PROGRAMMING
+(nerd-on-caffeine 'waiting)
+; DEBUGGING
+(nerd-on-caffeine 'programming)
+; SLEEPING
+(nerd-on-caffeine 'debugging)
+; EATING
+
+; f. if nerd on caffeine is currently programming, how many states will it 
+; have to go through before it is debugging?
+; 3
+
+
+; 6.36. write a function to swap the first and last elements of any list
+(setf lswap '(you cant buy love))
+
+(defun swap-first-last (x)
+  (let* ((a (reverse (rest x)))
+         (b (reverse (rest a))))
+    (cons (first a)
+          (append b (list (first x))))))
+
+(swap-first-last lswap)
+; (LOVE CANT BUY YOU)
+
+
+; 6.37. write ROTATE-LEFT and ROTATE-RIGHT functions that rotate the elements
+; of a list
+(setf letters '(A B C D E))
+(first letters)
+; A
+(rest letters)
+; (B C D E)
+
+(last letters)
+; (E)
+
+
+
+(defun rotate-left (l)
+  (append (rest l) 
+          (list (first l))))
+
+(rotate-left letters)
+; (B C D E A)
+
+(defun rotate-right (l)
+  (let ((last-item (first (last l))))
+    (cons last-item (remove last-item letters))))
+
+
+; 6.38. give an example of two sets X and Y such that (SET-DIFFERENCE X Y) equals
+; (SET-DIFFERENCE Y X)
+
+(set-difference '(a b c) '(a b c))
+; NIL
+
+(set-difference '(a b c) '(x y z))
+; (C B A)
+
+
+; 6.39. what list function performs unary addition?
+; APPEND
+
+
+; 6.40. show how to transform the list (A B C D) into a table so that the ASSOC
+; function using the table gives the same result as MEMBER using the list
+(setf letters-2 '(a b c d))
+
+(member 'a letters-2)
+; (A B C D)
+(member 'b letters-2)
+; (B C D)
+(member 'c letters-2)
+; (C D)
+(member 'd letters-2)
+; (D)
+
+(setf letters-table '((a b c d)
+                      (b c d)
+                      (c d)
+                      (d)))
+
+(assoc 'a letters-table)
+; (A B C D)
+(assoc 'b letters-table)
+; (B C D)
+(assoc 'c letters-table)
+; (C D)
+(assoc 'd letters-table)
+; (D)
+
+
+; 6.41
+(setf rooms '((living-room 
+                (north front-stairs)
+                (south dining-room)
+                (east kitchen))
+              (upstairs-bedroom 
+                (west library)
+                (south front-stairs))
+              (dining-room 
+                (north living-room)
+                (east pantry)
+                (west downstairs-bedroom))
+              (kitchen 
+                (west living-room)
+                (south pantry))
+              (pantry 
+                (north kitchen)
+                (west dining-room))
+              (downstairs-bedroom 
+                (north back-stairs)
+                (east dining-room))
+              (back-stairs 
+                (north library)
+                (south downstairs-bedroom))
+              (front-stairs 
+                (north upstairs-bedroom)
+                (south living-room))
+              (library 
+                (south back-stairs)
+                (west upstairs-bedroom))))
+
+(sdraw rooms)
+; [*|*]--->etc.
+;  |
+;  v
+; [*|*]-------->[*|*]------------------>[*|*]------------------>[*|*]--->NIL
+;  |             |                       |                       |
+;  v             v                       v                       v
+; LIVING-ROOM   [*|*]--->[*|*]--->NIL   [*|*]--->[*|*]--->NIL   [*|*]--->etc.
+;                |        |              |        |              |
+;                v        v              v        v              v
+;               NORTH    FRONT-STAIRS   SOUTH    DINING-ROOM    EAST
+
+; a. write a function CHOICES that takes the name of a room as input and returns
+; permissible directions Robbie may take from that room
+
+(defun choices (x)
+  (rest (assoc x rooms)))
+
+(choices 'living-room)
+; ((NORTH FRONT-STAIRS) (SOUTH DINING-ROOM) (EAST KITCHEN))
+
+(choices 'back-stairs)
+; ((NORTH LIBRARY) (SOUTH DOWNSTAIRS-BEDROOM))
+
+; b. write a function LOOK that takes two inputs, a direction and a room and tells
+; where Robbie would end up if he moved in that direction from the room
+(defun look (direction room)
+  (second (assoc direction (choices room))))
+
+(look 'north 'pantry)
+; KITCHEN
+
+(look 'west 'pantry)
+; DINING-ROOM
+
+(look 'south 'pantry)
+; NIL
+
+; c. set Robbie's location to pantry
+(defun set-robbie-location (place)
+  "Moves Robbie to PLACE by setting the variable LOC"
+  (setf loc place))
+
+(set-robbie-location 'pantry)
+
+; d. write a function HOW-MANY-CHOICES that tells how many choices Robbie has for
+; where to move next
+(defun how-many-choices ()
+  (length (choices loc)))
+
+(how-many-choices)
+; 2
+
+; e. 
+; write a predicate UPSTAIRSP that returns T if its input is an upstairs location
+; write a predicate ONSTAIRSP
+(defun upstairsp (location)
+  (or (equal location 'library)
+      (equal location 'upstairs-bedroom)))
+
+(defun onstairsp (location)
+  (or (equal location 'backs-stairs)
+      (equal location 'front-stairs)))
+
+(upstairsp 'library)
+; T
+(upstairsp 'upstairs-bedroom)
+; T
+(upstairsp 'living-room)
+; NIL
+
+(defun onstairsp (location)
+  (or (equal location 'backs-stairs)
+      (equal location 'front-stairs)))
+
+(onstairsp 'front-stairs)
+; T
+(onstairsp 'back-stairs)
+; T
+(onstairsp 'living-room)
+; NIL
+
+; f. write a function WHERE that returns where Robbie is
+(defun where ()
+  (if (onstairsp loc)
+     (list 'robbie 'is 'on 'the loc)
+     (list 'robbie 'is
+           (if (upstairsp loc)
+             'upstairs
+             'downstairs) 
+           'in 'the loc)))
+
+(where)
+; (ROBBIE IS DOWNSTAIRS IN THE DINING-ROOM)
+
+; g. write a function MOVE that takes one input, a direction, and moves Robbie
+; in that direction
+(defun move (dir)
+  (let ((new-loc (look dir loc)))
+    (cond ((null new-loc)
+           '(ouch! robbie hit a wall))
+          (t (set-robbie-location new-loc)
+             (where)))))
+
+(move 'north)
+; (ROBBIE IS DOWNSTAIRS IN THE KITCHEN)
