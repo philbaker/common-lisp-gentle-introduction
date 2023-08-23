@@ -736,7 +736,7 @@
                 (south living-room))
               (library 
                 (south back-stairs)
-                (west upstairs-bedroom))))
+                (east upstairs-bedroom))))
 
 (sdraw rooms)
 ; [*|*]--->etc.
@@ -844,3 +844,36 @@
 
 (move 'north)
 ; (ROBBIE IS DOWNSTAIRS IN THE KITCHEN)
+
+; h. starting from the pantry, take Robbie to the library via the back stairs.
+; Then take him to the kitchen, but do not lead him through the downstairs
+; bedroom on the way
+(set-robbie-location 'pantry)
+(where)
+; (ROBBIE IS DOWNSTAIRS IN THE PANTRY)
+
+(move 'west)
+; (ROBBIE IS DOWNSTAIRS IN THE DINING-ROOM)
+(move 'west)
+; (ROBBIE IS DOWNSTAIRS IN THE DOWNSTAIRS-BEDROOM)
+(move 'north)
+; (ROBBIE IS DOWNSTAIRS IN THE BACK-STAIRS)
+(move 'north)
+; (ROBBIE IS UPSTAIRS IN THE LIBRARY)
+(move 'east)
+; (ROBBIE IS UPSTAIRS IN THE UPSTAIRS-BEDROOM)
+(move 'south)
+; (ROBBIE IS ON THE FRONT-STAIRS)
+(move 'south)
+; (ROBBIE IS DOWNSTAIRS IN THE LIVING-ROOM)
+(move 'east)
+; (ROBBIE IS DOWNSTAIRS IN THE KITCHEN)
+
+
+; 6.42. write a function ROYAL-WE that changes every occurrence of the symbol
+; I in a list to the symbol WE
+(defun royal-we (l)
+  (subst 'we 'i l))
+
+(royal-we '(if i learn lisp i will be pleased))
+; (IF WE LEARN LISP WE WILL BE PLEASED)
