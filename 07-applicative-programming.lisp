@@ -167,3 +167,129 @@ fn
 
 (find-nested '(() nil (a b c) (2 5 5)))
 ; (A B C)
+
+
+; 7.10. Transpose a song from one key to another
+; a. write a NOTE-TABLE variable containing notes and corresponding numbers
+(setf note-table
+      '((c 1)
+        (c-sharp 2)
+        (d 3)
+        (d-sharp 4)
+        (e 5)
+        (f 6)
+        (f-sharp 7)
+        (g 8)
+        (g-sharp 9)
+        (a 10)
+        (a-sharp 11)
+        (b 12)))
+
+; b. write a function called NUMBERS that takes a list of notes as
+; input and returns the corresponding list of numbers
+(second (assoc 'c note-table))
+; 1
+
+(defun numbers (l)
+  (mapcar #'(lambda (x) (second (assoc x note-table))) l))
+
+(numbers '(e d c e e e))
+; (5 3 1 5 5 5)
+
+; c. write a function called NOTES that takes a list of numbers as input
+; and returns the corresponding list of notes
+(defun notes (l)
+  (let ((note-table-r (mapcar #'reverse note-table)))
+    (mapcar #'(lambda (x) (second (assoc x note-table-r))) l)))
+
+(notes '(5 3 1 3 5 5 5))
+; (E D C D E E E)
+
+; d. NOTES and NUMBERS are mutual inverses. What can be said about 
+; (NOTES (NOTES X)) and (NUMBERS (NUMBERS X))
+
+(notes (numbers '(e d c e e e)))
+; (E D C E E E)
+
+(numbers (notes '(5 3 1 3 5 5 5)))
+; (5 3 1 3 5 5 5)
+
+(notes (notes '(5 3 1 3 5 5 5)))
+; (NIL NIL NIL NIL NIL NIL NIL)
+
+(numbers (numbers '(e d c e e e)))
+; (NIL NIL NIL NIL NIL NIL)
+
+; e. write a function RAISE that takes a number n and a list of numbers
+; as input and raises each number in the list by the value n
+(defun raise (n l)
+  (mapcar #'(lambda (x) (+ x n)) l))
+
+(raise 5 '(5 3 1 3 5 5 5))
+; (10 8 6 8 10 10 10)
+
+; f. write a function NORMALIZE that takes a list of numbers as input
+; and normalizes the list to make the numbers between 1 and 12
+
+(defun normalize-number (n)
+  (cond ((> n 12) (- n 12))
+        ((< n 1) (+ n 12))
+        (t n)))
+
+(normalize-number 13)
+; 1
+(normalize-number -2)
+; 10
+(normalize-number 6)
+; 6
+(normalize-number 10)
+; 10
+
+(defun normalize (l)
+  (mapcar #'normalize-number l))
+
+(normalize '(6 10 13))
+; (6 10 1)
+
+; g. write a function TRANSPOSE that takes a number n and a song as
+; input and returns the song transposed by n half steps
+(defun transpose (n x)
+  (notes (normalize (raise n (numbers x)))))
+
+(transpose 5 '(E D C D E E E))
+; (A G F G A A A)
+
+(setf mary-little-lamb '(A G F G A A A))
+
+(transpose 11 mary-little-lamb)
+; (G-SHARP F-SHARP E F-SHARP G-SHARP G-SHARP G-SHARP)
+(transpose 12 mary-little-lamb)
+; (A G F G A A A)
+(transpose 1 mary-little-lamb)
+; (A-SHARP G-SHARP F-SHARP G-SHARP A-SHARP A-SHARP A-SHARP)
+
+
+; REMOVE-IF and REMOVE-IF-NOT
+(remove-if #'numberp '(2 for 1 sale))
+; (FOR SALE)
+
+(remove-if #'oddp '(1 2 3 4 5 6 7))
+; (2 4 6)
+
+(remove-if-not #'plusp '(2 0 -4 6 -8 10))
+; (2 6 10)
+
+(remove-if-not #'oddp '(2 0 -4 6 -8 10))
+; NIL
+
+
+; 7.11. write a function to pick out numbers in a list that are greater
+; than 1 and less than 5
+(defun pick-numbers (l)
+  (remove-if-not 
+    #'(lambda (x) 
+        (and (> x 1) (< x 5))) 
+    l))
+
+(pick-numbers '(10 2 6 -5 4))
+; (2 4)
