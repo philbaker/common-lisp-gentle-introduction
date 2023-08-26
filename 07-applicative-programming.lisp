@@ -293,3 +293,122 @@ fn
 
 (pick-numbers '(10 2 6 -5 4))
 ; (2 4)
+
+
+; 7.12. write a function that counts how many times the word "the" appears in
+; a sentence
+(defun the-count (l)
+  (length 
+    (remove-if-not 
+      #'(lambda (x) 
+          (equal x 'the)) 
+      l)))
+
+(the-count '(the cat sat on the mat))
+; 2
+
+(the-count '(hello world))
+; 0
+
+(the-count '(these are the greatest days))
+; 1
+
+
+; 7.13. write a funciton that picks from a list of lists those of exactly length
+; two
+(defun length-two-lists (l)
+  (remove-if-not #'(lambda (x) (equal (length x) 2)) l))
+
+(length-two-lists '((one two)
+                    (three four five)
+                    (six seven)
+                    (8 9)
+                    (10 11 12)))
+; ((ONE TWO) (SIX SEVEN) (8 9))
+
+(length-two-lists '())
+; NIL
+
+
+; 7.14. show how the INTERSECTION and UNION functions can be written using
+; REMOVE-IF and REMOVE-IF-NOT
+(setf soap-info '(soap water))
+
+(defun my-setdiff (x y)
+  (remove-if #'(lambda (e) (member e y))
+             x))
+
+(set-difference soap-info '(stop for water))
+; (SOAP)
+(my-setdiff soap-info '(stop for water))
+; (SOAP)
+
+(defun my-union (x y)
+  (remove-duplicates 
+    (append x y)))
+
+(defun my-union-remove-if (x y)
+  (append x
+          (remove-if
+            #'(lambda (e)
+                (member e x))
+            y)))
+
+(union soap-info '(no soap radio soap))
+; (RADIO NO SOAP WATER)
+
+(my-union soap-info '(no soap radio soap))
+; (WATER NO RADIO SOAP)
+
+(my-union-remove-if soap-info '(no soap radio soap))
+; (SOAP WATER NO RADIO)
+
+(defun my-intersection (x y)
+  (remove-if-not #'(lambda (e) 
+                     (member e y))
+                 x))
+
+(intersection soap-info '(soap biscuits water))
+; (WATER SOAP)
+
+(my-intersection soap-info '(soap biscuits water))
+; (SOAP WATER)
+
+
+; 7.15. playing cards
+; a. write the functions RANK and SUIT that return the rank and suit of a card
+(defun rank (l)
+   (first l))
+
+(defun suit (l)
+  (second l))
+
+(rank '(2 clubs))
+; 2
+
+(suit '(2 clubs))
+; CLUBS
+
+; b. set the global variable MY-HAND and write a function COUNT-SUIT that returns
+; the number of cards belonging to that suit
+(setf my-hand
+      '((3 hearts)
+        (5 clubs)
+        (2 diamonds)
+        (4 diamonds)
+        (ace spades)))
+
+(defun count-suit (x y)
+  (length 
+    (remove-if-not #'(lambda (e) 
+                       (equal (suit e) x))
+                   y)))
+
+(count-suit 'diamonds my-hand)
+; 2
+(count-suit 'clubs my-hand)
+; 1
+(count-suit 'hearts my-hand)
+; 1
+(count-suit 'spades my-hand)
+; 1
