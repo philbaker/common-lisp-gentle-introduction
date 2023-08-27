@@ -412,3 +412,111 @@ fn
 ; 1
 (count-suit 'spades my-hand)
 ; 1
+
+; c. write a function COLOR-OF that uses the table COLORS to
+; retrieve the color of a card
+(defun color-of (l)
+  (second (assoc (suit l) colors)))
+
+(color-of '(2 clubs))
+; BLACK
+(color-of '(3 diamonds))
+; RED
+
+; d. write a function FIRST-RED that returns the first card of a hand
+; that is of a red suit, or NIL if none are
+(setf my-hand-2
+      '((ace spades)
+        (5 clubs)
+        (2 diamonds)
+        (4 diamonds)
+        (3 hearts)))
+
+(setf my-hand-3
+      '((2 clubs)
+        (4 spades)))
+
+(defun first-red (hand)
+  (first 
+    (remove-if-not #'(lambda (x) 
+                       (equal (color-of x) 'red))
+                   hand)))
+
+(first-red my-hand)
+; (3 HEARTS)
+
+(first-red my-hand-2)
+; (2 DIAMONDS)
+
+(first-red my-hand-3)
+; NIL
+
+; e. write a function BLACK-CARDS that returns a list of all the black cards in
+; a hand
+(setf my-hand-4
+      '((2 diamonds)
+        (4 diamonds)))
+
+(defun black-cards (hand)
+  (remove-if-not #'(lambda (x) 
+                     (equal (color-of x) 'black))
+                 hand))
+
+(black-cards my-hand)
+; ((5 CLUBS) (ACE SPADES))
+
+(black-cards my-hand-2)
+; ((ACE SPADES) (5 CLUBS))
+
+(black-cards my-hand-3)
+; ((2 CLUBS) (4 SPADES))
+
+(black-cards my-hand-4)
+; NIL
+
+; f. write a function WHAT-RANKS that takes two inputs, a suit and a hand, and
+; returns the ranks of all cards belonging to that suit
+(defun what-ranks (s h)
+  (mapcar 
+    #'first
+    (remove-if-not #'(lambda (x) 
+                       (equal s (suit x)))
+                   h)))
+
+(what-ranks 'diamonds my-hand)
+; (2 4)
+(what-ranks 'spades my-hand)
+; (ACE)
+(what-ranks 'clubs my-hand)
+; (5)
+(what-ranks 'hearts my-hand)
+; (3)
+
+; g. write a predicate HIGHER-RANK-P that takes two cards as input and returns
+; true if the first card has a higher rank than the second
+(defun boolean-value (x)
+  (not (not x)))
+
+(setf all-ranks '(2 3 4 5 6 7 8 9 10 jack queen king ace))
+
+(defun beforep (x y l)
+  "Returns true if x appears before Y in L"
+  (member y (member x l)))
+
+(beforep 'not 'whom '(ask not for whom the bell tolls))
+; (WHOM THE BELL TOLLS)
+
+(beforep 'not 'whom '(ask whom for not the bell tolls))
+
+(defun higher-rank-p (x y)
+  (boolean-value 
+    (beforep y x all-ranks)))
+
+(higher-rank-p 'ace 2)
+; T
+
+(higher-rank-p 'ace 'queen)
+; T
+
+(higher-rank-p 'king 'ace)
+; NIL
