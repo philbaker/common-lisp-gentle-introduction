@@ -520,3 +520,155 @@ fn
 
 (higher-rank-p 'king 'ace)
 ; NIL
+
+; h. write a function HIGH-CARD that returns the highest ranked card in a hand
+(defun high-card (h)
+  (find-if 
+    #'(lambda (x) 
+        (assoc x h)) 
+    (reverse all-ranks)))
+
+(high-card my-hand)
+; ACE
+
+
+; The reduce operator reduces the elements of a list into a single result
+(reduce #' + '(1 2 3))
+; 6
+
+(reduce #' + '(10 9 8 7 6))
+; 40
+
+(reduce #' + '(5))
+; 5
+
+(reduce #' + nil)
+; 0
+
+(reduce #' * '(2 4 5))
+; 40
+
+(reduce #' * '(3 4 0 7))
+; 0
+
+(reduce #' * '(8))
+; 8
+
+(reduce #'append '((one un) (two deux) (three trois)))
+; (ONE UN TWO DEUX THREE TROIS)
+
+
+; 7.16. what reducing function should be used to find a set from a list of lists?
+(reduce #'union '((a b c) (c d a) (f b d) (g)))
+; (D B F C A G)
+
+
+; 7.17. write a function that, given a list of lists, returns the total length
+; of all the lists
+(length (reduce #'append '((a b c) (c d a) (f b d) (g))))
+; 10
+
+
+; 7.18 (REDUCE #'+ nil) returns 0 but (REDUCE #'* NIL) returns 1. Why is that? 
+; It is down to how + and * handle no value 
+; + if you pass + no value it returns 0
+(+)
+; 0
+; * if you pass * no value it returns 1
+(*)
+; 1
+
+
+; EVERY takes a predicate and a list as input. It returns T if there is no element
+; that causes the predicate to return false
+(every #'numberp '(1 2 3 4 5))
+; T
+
+(every #'numberp '(1 2 A B C 5))
+; NIL
+
+(every #'(lambda (x) (> x 0)) '(1 2 3 4 5))
+; T
+
+(every #'(lambda (x) (> x 0)) '(1 2 3 -4 5))
+; NIL
+
+; If EVERY is called with NIL it returns T because the list has no elements
+; that could fail to satisfy the predicate
+(every #'oddp nil)
+; T
+
+(every #'evenp nil)
+; T
+
+; EVERY can operate on multiple lists given a predicate that accepts multiple
+; inputs
+(every #'> '(10 20 30 40) '(1 5 11 23))
+; T
+
+
+; 7.19. write a function ALL-ODD that returns T if every element of a list of
+; numbers is odd
+(defun all-odd (l)
+  (every #'oddp l))
+
+(all-odd '(1 2 3 4 5))
+; NIL
+
+(all-odd '(1 3 5 7 9))
+; T
+
+(all-odd '(2 4 6 8 10))
+; NIL
+
+
+; 7.20. write a function NONE-ODD that returns T if every element of a list of
+; numbers is not odd
+(defun none-odd (l)
+  (every #'evenp l))
+
+(none-odd '(1 2 3 4 5))
+; NIL
+
+(none-odd '(1 3 5 7 9))
+; NIL
+
+(none-odd '(2 4 6 8 10))
+; T
+
+
+; 7.21. write a function NOT-ALL-ODD that returns T if not every element of a
+; list of numbers is odd
+(defun not-all-odd (l)
+  (not (all-odd l)))
+
+(not-all-odd '(1 2 3 4 5))
+; T
+
+(not-all-odd '(1 3 5 7 9))
+; NIL
+
+(not-all-odd '(2 4 6 8 10))
+; T
+
+
+; 7.22. write a function NOT-NONE-ODD that returns T if it is not the case that
+; a list of numbers contains no odd elements
+(defun not-none-odd (l)
+  (not (none-odd l)))
+
+(not-none-odd '(1 2 3 4 5))
+; T
+
+(not-none-odd '(1 3 5 7 9))
+; T
+
+(not-none-odd '(2 4 6 8 10))
+; NIL
+
+
+; 7.23. are all four of the above functions distinct from one another?
+; Yes
+; Can you think of better names for the last two?
+; some-even
+; some-odd
