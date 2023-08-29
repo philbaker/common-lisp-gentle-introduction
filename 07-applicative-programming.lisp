@@ -672,3 +672,89 @@ fn
 ; Can you think of better names for the last two?
 ; some-even
 ; some-odd
+
+
+; 7.24. what is an applicative operator?
+; An applicative operator is a function that applies an other function to a
+; data structure
+
+
+; 7.25. why are lambda functions useful? is it possible to do without them?
+; lambda functions are useful because they allow you to define a function inline
+; e.g. inside a call to mapcar. It is possible to do without them by defining
+; a function separately but that is not always preferred
+
+
+; 7.26. show how to write FIND-IF given REMOVE-IF-NOT
+(defun find-if-rin (fn l)
+  (first (remove-if-not fn l)))
+
+(find-if-rin #'plusp '(2 0 -4 6 -8 10))
+; 2
+
+
+; 7.27. show how to write EVERY given REMOVE-IF
+(defun every-ri (fn l)
+  (not (remove-if fn l)))
+
+(every-ri #'numberp '(1 2 3 4 5))
+; T
+
+(every-ri #'numberp '(1 2 A B C 5))
+; NIL
+
+
+; TRACE and DTRACE
+(defun half (n)
+  (* n 0.5))
+
+(defun average (x y)
+  (+ (half x) (half y)))
+
+; (trace half average)
+; (HALF AVERAGE)
+
+(average 3 7)
+; 0: (AVERAGE 3 7)
+;   1: (HALF 3)
+;   1: HALF returned 1.5
+;   1: (HALF 7)
+;   1: HALF returned 3.5
+; 0: AVERAGE returned 5.0
+
+; (trace)
+; (HALF AVERAGE)
+
+; (untrace half)
+
+; (untrace)
+
+(defun add-to-end (x y)
+  (append x (list y)))
+
+(defun repeat-first (phrase)
+  (add-to-end phrase (first phrase)))
+
+; (dtrace add-to-end repeat-first)
+
+(repeat-first '(for whom the bell tolls))
+; ----Enter REPEAT-FIRST
+; |     Arg-1 = (FOR WHOM THE BELL TOLLS)
+; |   ----Enter ADD-TO-END
+; |   |     Arg-1 = (FOR WHOM THE BELL TOLLS)
+; |   |     Arg-2 = FOR
+; |    \--ADD-TO-END returned (FOR WHOM THE BELL TOLLS FOR)
+;  \--REPEAT-FIRST returned (FOR WHOM THE BELL TOLLS FOR)
+
+(defun find-first-odd (x)
+  (find-if #'oddp x))
+
+; (dtrace find-first-odd oddp)
+
+(find-first-odd '(2 4 6 7 8))
+; ----Enter FIND-FIRST-ODD
+; |     Arg-1 = (2 4 6 7 8)
+;  \--FIND-FIRST-ODD returned 7
+; 7
+
+; Note: avoid tracing built-in functions like EVAL and CONS to avoid infinite loops
