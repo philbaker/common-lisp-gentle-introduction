@@ -893,3 +893,86 @@ fn
 
 (supp-cube 'b1)
 ; NIL
+
+; h. write a function DESC1 that takes a block as input and returns all assertions
+; dealing with that block
+(defun desc1 (x)
+  (fetch (list x '? '?)))
+
+(desc1 'b6)
+; ((B6 SHAPE BRICK) (B6 COLOR PURPLE) (B6 SIZE LARGE))
+
+; i. write a function DESC2 of one input that calls DESC1 and strips the block
+; name off each element of the result
+(defun desc2 (x)
+  (mapcar #'rest (desc1 x)))
+
+(desc2 'b6)
+; ((SHAPE BRICK) (COLOR PURPLE) (SIZE LARGE))
+
+; j. write a DESCRIPTION function
+(defun description (x)
+  (reduce #'append (desc2 x)))
+
+(description 'b6)
+; (SHAPE BRICK COLOR PURPLE SIZE LARGE)
+
+; k. what is the description of block B1? of block B4?
+(description 'b1)
+; (SHAPE BRICK COLOR GREEN SIZE SMALL SUPPORTED-BY B2 SUPPORTED-BY B3)
+
+(description 'b4)
+; (SHAPE PYRAMID COLOR BLUE SIZE LARGE SUPPORTED-BY B5)
+
+; i. block B1 is made of wood, but block B2 is made of plastic. How would you
+; add this information to the database?
+
+(append database '((b1 material wood)
+                   (b2 material plastic)))
+; ((B1 SHAPE BRICK) (B1 COLOR GREEN) (B1 SIZE SMALL) (B1 SUPPORTED-BY B2)
+;  (B1 SUPPORTED-BY B3) (B2 SHAPE BRICK) (B2 COLOR RED) (B2 SIZE SMALL)
+;  (B2 SUPPORTS B1) (B2 LEFT-OF B3) (B3 SHAPE BRICK) (B3 COLOR RED)
+;  (B3 SIZE SMALL) (B3 SUPPORTS B1) (B3 RIGHT-OF B2) (B4 SHAPE PYRAMID)
+;  (B4 COLOR BLUE) (B4 SIZE LARGE) (B4 SUPPORTED-BY B5) (B5 SHAPE CUBE)
+;  (B5 COLOR GREEN) (B5 SIZE LARGE) (B5 SUPPORTS B4) (B6 SHAPE BRICK)
+;  (B6 COLOR PURPLE) (B6 SIZE LARGE) (B1 MATERIAL WOOD) (B2 MATERIAL PLASTIC))
+
+
+; Operating on multiple lists
+
+; MAPCAR goes through lists in parallel, taking one element at each step. If
+; one list is shorter than the other, MAPCAR stops when it reaches the end of
+; the shortest list
+
+(mapcar #'(lambda (x y) (list x 'gets y))
+        '(fred wilma george diane)
+        '(job1 job2 job3 job4))
+; ((FRED GETS JOB1) 
+;  (WILMA GETS JOB2) 
+;  (GEORGE GETS JOB3) 
+;  (DIANE GETS JOB4))
+
+(mapcar #'+ '(1 2 3 4 5) '(60 70 80 90 100))
+; (61 72 83 94 105)
+
+(mapcar #'+ '(1 2 3) '(10 20 30 40 50))
+; (11 22 33)
+
+
+; 7.30. write an expression to create a trilingual dictionary from the global
+; variable words
+(setf words
+      '((one un)
+        (two deux)
+        (three trois)
+        (four quatre)
+        (five cinq)))
+
+(mapcar #'(lambda (x y) (append x (list y)))
+        words
+        '(uno dos tres quatro cinco))
+; ((ONE UN UNO) 
+;  (TWO DEUX DOS) 
+;  (THREE TROIS TRES) 
+;  (FOUR QUATRE QUATRO)
+;  (FIVE CINQ CINCO))
