@@ -758,3 +758,138 @@ fn
 ; 7
 
 ; Note: avoid tracing built-in functions like EVAL and CONS to avoid infinite loops
+
+
+; 7.29
+(setf database
+      '((b1 shape brick)
+        (b1 color green)
+        (b1 size small)
+        (b1 supported-by b2)
+        (b1 supported-by b3)
+        (b2 shape brick)
+        (b2 color red)
+        (b2 size small)
+        (b2 supports b1)
+        (b2 left-of b3)
+        (b3 shape brick)
+        (b3 color red)
+        (b3 size small)
+        (b3 supports b1)
+        (b3 right-of b2)
+        (b4 shape pyramid)
+        (b4 color blue)
+        (b4 size large)
+        (b4 supported-by b5)
+        (b5 shape cube)
+        (b5 color green)
+        (b5 size large)
+        (b5 supports b4)
+        (b6 shape brick)
+        (b6 color purple)
+        (b6 size large)))
+
+; a. write a function MATCH-ELEMENT that takes two inputs. It should return T
+; if both elements match or if the second input equals ?. Otherwise return NIL
+(defun match-element (x y)
+  (or
+    (equal x y)
+    (equal y '?)))
+
+(match-element 'red 'red)
+; T
+
+(match-element 'red 'blue)
+; NIL
+
+; b. write a function MATCH-TRIPLE using MATCH-ELEMENT as a building block
+(defun match-triple (x y)
+  (and
+    (match-element (first x) (first y))
+    (match-element (second x) (second y))
+    (match-element (third x) (third y))))
+
+(match-triple '(b2 color red) '(b2 color ?))
+; T
+
+(match-triple '(b2 color red) '(b1 color green))
+; NIL
+
+; c. write a function FETCH that takes a pattern as input and returns all assertions
+; in the database that match the pattern
+(defun fetch (x)
+  (remove-if-not #'(lambda (entry)
+                     (match-triple entry x))
+                 database))
+
+(fetch '(b2 color ?))
+; ((B2 COLOR RED))
+
+(fetch '(? supports b1))
+; ((B2 SUPPORTS B1) (B3 SUPPORTS B1))
+
+; d. use FETCH to answer the following questions
+; what shape is block b4?
+(fetch '(b4 color ?))
+; ((B4 COLOR BLUE))
+
+; which blocks are bricks?
+(fetch '(? shape brick))
+; ((B1 SHAPE BRICK) (B2 SHAPE BRICK) (B3 SHAPE BRICK) (B6 SHAPE BRICK))
+
+; what relation is block b2 to block b3?
+(fetch '(b2 ? b3))
+; ((B2 LEFT-OF B3))
+
+; list the color of every block
+(fetch '(? color ?))
+; ((B1 COLOR GREEN) 
+;  (B2 COLOR RED) 
+;  (B3 COLOR RED) 
+;  (B4 COLOR BLUE) 
+;  (B5 COLOR GREEN) 
+;  (B6 COLOR PURPLE))
+
+; what facts are known about block b4?
+(fetch '(b4 ? ?))
+; ((B4 SHAPE PYRAMID) (B4 COLOR BLUE) (B4 SIZE LARGE) (B4 SUPPORTED-BY B5))
+
+; e. write a function that takes a block name as input and returns a pattern
+; asking the color of the block
+(defun color-pattern (x)
+  (list x 'color '?))
+
+(color-pattern 'b3)
+; (B3 COLOR ?)
+
+; f. write a function SUPPORTERS that takes one input, a block, and returns the
+; list of the blocks that support it
+
+; construct a pattern containing the block's name
+; use that as an input to fetch
+; extract the black names from the resulting list
+(defun supporters (x)
+  (mapcar #'third
+          (fetch (list x 'supported-by '?))))
+
+(supporters 'b1)
+; (B2 B3)
+
+(supporters 'b4)
+; (B5)
+
+(supporters 'b5)
+; NIL
+
+; g. write a predicate SUPP-CUBE that takes a block as input and returns true
+; if that block is supported by a cube 
+(defun supp-cube (x)
+  (let ((supporter (first (supporters x))))
+    (boolean-value 
+      (fetch (list supporter 'shape 'cube)))))
+
+(supp-cube 'b4)
+; T
+
+(supp-cube 'b1)
+; NIL
