@@ -377,13 +377,125 @@
 
 
 ; 8.9. write a recursive version of NTH. Call it REC-NTH
-(nth 2 '(a b c))
-; C
-
 (defun rec-nth (i l)
   (cond ((null l) nil)
-        ((equal i (first l)) (first l))
-        (t (rec-nth i (rest l)))))
+        ((equal i 0) (first l))
+        (t (rec-nth (- i 1) (rest l)))))
+
+(rec-nth 0 '(a b c))
+; A
+
+(rec-nth 1 '(a b c))
+; B
 
 (rec-nth 2 '(a b c))
+; C
 
+
+; 8.10. create a REC-PLUS function (a recursive version of +)
+; - for x a non-negative integer and y a positive integer, x+y = x+1+(y-1)
+; - if y is zero then x+y = x
+; use ADD1, SUB1, COND and ZEROP
+
+(defun add1 (x)
+  (+ x 1))
+
+(defun sub1 (x)
+  (- x 1))
+
+(defun rec-plus (x y)
+  (cond ((zerop y) x)
+        (t (rec-plus (add1 x) (sub1 y)))))
+ 
+(rec-plus 1 2)
+; 3
+
+(rec-plus 0 0) ; FIB
+; 0
+
+; 8.11. write a correct version of the FIB function
+
+(defun fib (n)
+  (cond ((or (equal n 0) (equal n 1)) 1)
+         (t (+ (fib (- n 1)) 
+               (fib (- n 2))))))
+
+; (dtrace fib)
+
+(fib 4)
+; 5
+; ----Enter FIB
+; |     Arg-1 = 4
+; |   ----Enter FIB
+; |   |     Arg-1 = 3
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 2
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 1
+; |   |   |    \--FIB returned 1
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 0
+; |   |   |    \--FIB returned 1
+; |   |    \--FIB returned 2
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 1
+; |   |    \--FIB returned 1
+; |    \--FIB returned 3
+; |   ----Enter FIB
+; |   |     Arg-1 = 2
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 1
+; |   |    \--FIB returned 1
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 0
+; |   |    \--FIB returned 1
+; |    \--FIB returned 2
+;  \--FIB returned 5
+
+(fib 5)
+; 8
+; ----Enter FIB
+; |     Arg-1 = 5
+; |   ----Enter FIB
+; |   |     Arg-1 = 4
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 3
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 2
+; |   |   |   |   ----Enter FIB
+; |   |   |   |   |     Arg-1 = 1
+; |   |   |   |    \--FIB returned 1
+; |   |   |   |   ----Enter FIB
+; |   |   |   |   |     Arg-1 = 0
+; |   |   |   |    \--FIB returned 1
+; |   |   |    \--FIB returned 2
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 1
+; |   |   |    \--FIB returned 1
+; |   |    \--FIB returned 3
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 2
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 1
+; |   |   |    \--FIB returned 1
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 0
+; |   |   |    \--FIB returned 1
+; |   |    \--FIB returned 2
+; |    \--FIB returned 5
+; |   ----Enter FIB
+; |   |     Arg-1 = 3
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 2
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 1
+; |   |   |    \--FIB returned 1
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 0
+; |   |   |    \--FIB returned 1
+; |   |    \--FIB returned 2
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 1
+; |   |    \--FIB returned 1
+; |    \--FIB returned 3
+;  \--FIB returned 8
