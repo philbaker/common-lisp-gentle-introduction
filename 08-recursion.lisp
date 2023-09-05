@@ -413,6 +413,66 @@
 (rec-plus 0 0) ; FIB
 ; 0
 
+
+(defun collatz (n)
+  (cond ((equal n 1) t)
+        ((evenp n) (collatz (/ n 2)))
+        (t (collatz (+ (* 3 n) 1)))))
+
+(dtrace collatz)
+
+
+; Collatz's conjecture - there are no (positive) inputs which cause the function 
+; to recurse infinitely
+; There is also no clear relation between the size of the input and number of
+; recursive calls
+
+(collatz 1)
+; ----Enter COLLATZ
+; |     Arg-1 = 1
+;  \--COLLATZ returned T
+
+(collatz 3)
+; ----Enter COLLATZ
+; |     Arg-1 = 3
+; |   ----Enter COLLATZ
+; |   |     Arg-1 = 10
+; |   |   ----Enter COLLATZ
+; |   |   |     Arg-1 = 5
+; |   |   |   ----Enter COLLATZ
+; |   |   |   |     Arg-1 = 16
+; |   |   |   |   ----Enter COLLATZ
+; |   |   |   |   |     Arg-1 = 8
+; |   |   |   |   |   ----Enter COLLATZ
+; |   |   |   |   |   |     Arg-1 = 4
+; |   |   |   |   |   |   ----Enter COLLATZ
+; |   |   |   |   |   |   |     Arg-1 = 2
+; |   |   |   |   |   |   |   ----Enter COLLATZ
+; |   |   |   |   |   |   |   |     Arg-1 = 1
+; |   |   |   |   |   |   |    \--COLLATZ returned T
+; |   |   |   |   |   |    \--COLLATZ returned T
+; |   |   |   |   |    \--COLLATZ returned T
+; |   |   |   |    \--COLLATZ returned T
+; |   |   |    \--COLLATZ returned T
+; |   |    \--COLLATZ returned T
+; |    \--COLLATZ returned T
+;  \--COLLATZ returned T
+
+(collatz 8)
+; ----Enter COLLATZ
+; |     Arg-1 = 8
+; |   ----Enter COLLATZ
+; |   |     Arg-1 = 4
+; |   |   ----Enter COLLATZ
+; |   |   |     Arg-1 = 2
+; |   |   |   ----Enter COLLATZ
+; |   |   |   |     Arg-1 = 1
+; |   |   |    \--COLLATZ returned T
+; |   |    \--COLLATZ returned T
+; |    \--COLLATZ returned T
+;  \--COLLATZ returned T
+
+
 ; 8.11. write a correct version of the FIB function
 
 (defun fib (n)
@@ -499,3 +559,185 @@
 ; |   |    \--FIB returned 1
 ; |    \--FIB returned 3
 ;  \--FIB returned 8
+
+
+; 8.12. consider ANY-7-P 
+(defun any-7-p (x)
+  (cond ((equal (first x) 7) t)
+        (t (any-7-p (rest x)))))
+
+; give a sample input for which the function will work correctly
+ (any-7-p '(1 8 7 5 4))
+; T
+
+; give an example where it will recurse infinitely
+ ; (any-7-p nil)
+
+
+; 8.13. review the definition of the function FACT. What sort of input could you
+; give it to cause an infinite recursion?
+; (fact -1)
+
+
+; 8.14. write the very shortest infinite recursion function you can
+(defun inf-rec (n)
+  (inf-rec (- n 1)))
+
+; (inf-rec 5)
+
+
+; 8.15
+; what is the car if this list? x
+; what is the cdr? the list
+; what will COUNT-SLICES do when given this list as input? recurse infinitely
+
+
+; Recursion templates
+
+; Double-test tail recursion
+; (defun func (x)
+;   (cond (end-test-1 end-value-1)
+;         (end-test-2 end-value-2)
+;         (t (func reduced-x))))
+
+; Func: ANYODDP
+; End-test-1: (NULL X)
+; End-value-1: NIL
+; End-test-2: (ODDP (FIRST X))
+; End-value-2: T
+; Reduced-x: (REST X)
+
+(defun anyoddp (x)
+  (cond ((null x) nil)
+        ((oddp (first x)) t)
+        (t (anyoddp (rest x)))))
+
+; This function is said to be tail-recursive because the action part of the
+; last COND clause does not do any work after the recursive call
+
+
+; 8.16. what would happen if we switched the first and second COND clauses in
+; ANYODDP?
+; It works for all cases except the nil case where it throws an error
+
+(defun anyoddp-re (x)
+  (cond ((oddp (first x)) t)
+        ((null x) nil)
+        (t (anyoddp (rest x)))))
+
+(anyoddp nil)
+; NIL
+
+(anyoddp-re nil)
+; The value NIL is not of type INTEGER
+
+(anyoddp '(7))
+; T
+
+(anyoddp-re '(7))
+; T
+
+(anyoddp '(6))
+; NIL
+
+(anyoddp-re '(6))
+; NIL
+
+(anyoddp '(6 7))
+; T
+
+(anyoddp-re '(6 7))
+; T
+
+(anyoddp '(2 4 6 7 8 9))
+; T
+
+(anyoddp-re '(2 4 6 7 8 9))
+; T
+
+
+; 8.17. use double-test tail recursion to write FIND-FIRST-ODD, a function
+; that returns the first odd number in a list, or NIL if there are none
+
+(defun find-first-odd (x)
+  (cond ((null x) nil)
+        ((oddp (first x)) (first x))
+        (t (find-first-odd (rest x)))))
+
+(find-first-odd nil)
+; NIL
+
+(find-first-odd '(7))
+; 7
+
+(find-first-odd '(6))
+; NIL
+
+(find-first-odd '(6 7))
+; 7
+
+(find-first-odd '(2 4 6 7 8 9))
+; 7
+
+
+; Single-test tail recursion
+; In general single-test recursion is used when we know the function will always
+; find what it's looking for eventually
+; double-test recursion is used when there is a possibility the function might
+; not find what it's looking for
+
+; Template:
+; (defun func (x)
+;   (cond (end-test end-value)
+;         (t (func reduced-x))))
+
+; Example:
+; Func: FIND-FIRST-ATOM
+; End-test: (atom x)
+; End-value: x
+; Reduced-x: (first x)
+
+(defun find-first-atom (x)
+  (cond ((atom x) x)
+        (t (find-first-atom (first x)))))
+
+(find-first-atom '(ooh ah eee))
+; OOH
+
+(find-first-atom '((((a f)) i) r))
+; A
+
+(find-first-atom 'fred)
+; FRED
+
+
+; 8.18. use single-test tail recursion to write LAST-ELEMENT, a function that
+; returns the last element of a list
+(defun last-element (x)
+  (cond ((atom (cdr x)) (car x))
+        (t (last-element (cdr x)))))
+
+(find-last-element '((((a f)) i) r))
+; R
+
+
+; 8.19. if we convert anyoddp to use singlne-test tail recursion in which
+; cases would the function still work? where would it fail?
+(defun anyoddp-single (x)
+  (cond ((oddp (first x)) t)
+        (t (anyoddp (rest x)))))
+
+(anyoddp-single nil)
+; The value NIL is not of type INTEGER
+
+(anyoddp-single '(7))
+; T
+
+(anyoddp-single '(6))
+; NIL
+
+(anyoddp-single '(6 7))
+; T
+
+(anyoddp-single '(2 4 6 7 8 9))
+; T
