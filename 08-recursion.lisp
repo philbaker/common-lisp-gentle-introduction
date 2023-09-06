@@ -741,3 +741,183 @@
 
 (anyoddp-single '(2 4 6 7 8 9))
 ; T
+
+
+; Single-test augmenting recursion
+; template
+; (defun func (x)
+;   (cond (end-test end-value)
+;         (t (aug-fun aug-val)
+;            (func reduced-x))))
+
+; example
+; Func: COUNT-SLICES
+; End-test: (NULL X)
+; End-value: 0
+; Aug-fun: +
+; Aug-val: 1
+; Reduced-x: (REST X)
+
+(defun count-slices-aug (x)
+  (cond ((null x) 0)
+        (t (+ 1 (count-slices (rest x))))))
+
+
+; 8.20. which template describes FACT, the factorial function?
+; write down the values of he various template components of FACT
+
+; Single-test augmenting recursion
+
+; Func: FACT-AUG
+; End-test: (ZEROP N)
+; End-value: 1
+; Aug-fun: *
+; Aug-val: N
+; Reduced-x: (- N 1)
+
+(defun fact-aug (n)
+  (cond ((zerop n) 1)
+        (t (* n (fact (- n 1))))))
+
+
+; 8.21. write a recursive function ADD-NUMS that adds up the numbers N, N-1,
+; N-2 etc down to 0 and returns the result
+; (ADD-NUMS 5) should compute 5+4+3+2+1+0 which is 15
+
+(defun add-nums (n)
+  (cond ((zerop n) 0)
+        (t (+ n (add-nums (- n 1))))))
+
+; (dtrace add-nums)
+
+(add-nums 5)
+; 15
+; ----Enter ADD-NUMS
+; |     Arg-1 = 5
+; |   ----Enter ADD-NUMS
+; |   |     Arg-1 = 4
+; |   |   ----Enter ADD-NUMS
+; |   |   |     Arg-1 = 3
+; |   |   |   ----Enter ADD-NUMS
+; |   |   |   |     Arg-1 = 2
+; |   |   |   |   ----Enter ADD-NUMS
+; |   |   |   |   |     Arg-1 = 1
+; |   |   |   |   |   ----Enter ADD-NUMS
+; |   |   |   |   |   |     Arg-1 = 0
+; |   |   |   |   |    \--ADD-NUMS returned 0
+; |   |   |   |    \--ADD-NUMS returned 1
+; |   |   |    \--ADD-NUMS returned 3
+; |   |    \--ADD-NUMS returned 6
+; |    \--ADD-NUMS returned 10
+;  \--ADD-NUMS returned 15
+
+
+; 8.22. write a recursive function ALL-EQUAL that returns T if the first element
+; of a list is equal to the second, the second is equal to the third, the third
+; is equal to the fourth etc
+; ALL-EQUAL should return T for lists with less than two elements
+; Does this problem require augmentation? No
+; Which template will you use to solve it? double-test tail recursion
+
+(defun all-equal (x)
+  (cond ((< (length x) 2) t)
+        ((not (equal (first x) (second x))) nil)
+        (t (all-equal (rest x)))))
+; Book suggests (null (rest x)) rather than length check
+
+(all-equal '(I I I I))
+; T
+
+(all-equal '(I I E I))
+; NIL
+
+(all-equal '(I))
+; T
+
+(all-equal '())
+; T
+
+
+; List-consing recursion
+; Used frequently in Lisp - a special case of augmenting recursion where the
+; augmentation function is CONS
+
+; template
+; (defun func (n)
+;   (cond (end-test nil)
+;         (t (cons new-element
+;                  (func reduced-n)))))
+
+; example
+; Func: LAUGH
+; End-test: (ZEROP N)
+; New-element: 'HA
+; Reduced-n: (- N 1)
+
+(defun laugh-cons (n)
+  (cond ((zerop n) nil)
+        (t (cons 'ha (laugh (- n 1))))))
+
+
+; Simultaneous recursion on several variables
+; template:
+; (defun func (n x)
+;   (cond (end-test end-value)
+;         (t (func reduced-n reduced-x))))
+;
+
+; example:
+; Func: MY-NTH
+; End-test: (ZEROP N)
+; End-value: (FIRST X)
+; Reduced-n: (- N 1)
+; Reduced-x: (REST X)
+
+(defun my-nth-sim (n x)
+  (cond ((zerop n) (first x))
+        (t (my-nth-sim (- n 1) (rest x)))))
+
+
+; 8.28. the expressions (MY-NTH 5 '(A B C)) and (MY-NTH 1000 '(A B C)) both run
+; off the end of the list and hence produce a NIL result
+; The second expressions takes much longer to execute than the first
+; Modify MY-NTH-SIM so that the recursion stops as soon as the function runs off
+; the end of the list
+
+(time (my-nth-sim 5 '(a b c)))  
+; NIL
+; 0.000 seconds of real time
+; 0.000012 seconds of total run time (0.000012 user, 0.000000 system)
+; 100.00% CPU
+; 1,505 processor cycles
+; 0 bytes consed
+
+(time (my-nth-sim 100005000 '(a b c))) 
+; NIL
+; 1.057 seconds of real time
+; 4.078989 seconds of total run time (4.078989 user, 0.000000 system)
+; 385.90% CPU
+; 2,320,488,262 processor cycles
+; 0 bytes consed
+
+(defun my-nth-sim2 (n x)
+  (cond ((zerop n) (first x))
+        ((null x) nil)
+        (t (my-nth-sim2 (- n 1) (rest x)))))
+
+
+(time (my-nth-sim2 5 '(a b c)))  
+; NIL
+; 0.000 seconds of real time
+; 0.000007 seconds of total run time (0.000007 user, 0.000000 system)
+; 100.00% CPU
+; 1,372 processor cycles
+; 0 bytes consed
+
+(time (my-nth-sim2 100005000 '(a b c))) 
+; NIL
+; 0.000 seconds of real time
+; 0.000008 seconds of total run time (0.000008 user, 0.000000 system)
+; 100.00% CPU
+; 1,129 processor cycles
+; 0 bytes consed
