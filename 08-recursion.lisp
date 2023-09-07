@@ -921,3 +921,226 @@
 ; 100.00% CPU
 ; 1,129 processor cycles
 ; 0 bytes consed
+
+
+; 8.29. write MY-MEMBER, a recursive version of MEMBER.
+(defun my-member (match l)
+  (cond ((null l) nil)
+        ((equal match (first l)) l)
+        (t (my-member match (rest l)))))
+
+(my-member 'huey ducks)
+; (HUEY DEWEY LOUIE)
+
+(my-member 'dewey ducks)
+; (DEWEY LOUIE)
+
+(my-member 'louie ducks)
+; (LOUIE)
+
+(my-member 'kablouie ducks)
+; NIL
+
+
+; 8.30. write MY-ASSOC, a recursive version of ASSOC
+(defun my-assoc (x l)
+   (cond ((null l) nil)
+         ((equal x (car (first l))) (first l))
+         (t (my-assoc x (rest l)))))
+
+(my-assoc 'apple produce2)
+; (APPLE FRUIT)
+
+(my-assoc 'celery produce2)
+; (CELERY VEGGIE)
+
+(my-assoc 'banana produce2)
+; (BANANA FRUIT)
+
+(my-assoc 'lettuce produce2)
+; (LETTUCE VEGGIE)
+
+(my-assoc 'kiwi produce2)
+; NIL
+
+(my-assoc 'fruit produce2)
+; NIL
+
+
+; 8.31.
+; - Want to tell as quickly as possible whether one list is shorter than another
+; - Write a recursive function COMPARE-LENGTHS that takes two lists as input
+; and returns SAME-LENGTH, FIRST-IS-LONGER or SECOND-IS-LONGER
+; - Use triple-test simultaneous recursion
+; - If x is shorter than y and both are nonempty (REST x) is shorter than (REST y)
+
+; (defun func (n x)
+;   (cond (end-test end-value)
+;         (t (func reduced-n reduced-x))))
+
+(defun compare-lengths (x y)
+  (cond ((and (null x) (null y)) 'SAME-LENGTH)
+        ((null y) 'FIRST-IS-LONGER)
+        ((null x) 'SECOND-IS-LONGER)
+        (t (compare-lengths (rest x) (rest y)))))
+
+(compare-lengths '(a b c) '(d e f))
+; SAME-LENGTH
+
+(compare-lengths '(a b c d) '(e f))
+; FIRST-IS-LONGER
+
+(compare-lengths '(a b) '(c d e f))
+; SECOND-IS-LONGER
+
+
+; Conditional augmentation
+; in some list processing problems we want to skip certain elements of the list
+; and use only the remaining ones to build up the result
+
+; template
+; (defun func (x)
+;   (cond (end-test end-value)
+;         (aug-test (aug-fun aug-val
+;                            (func reduced-x)))
+;         (t (func reduced-x))))
+
+; example
+; Func: EXTRACT-SYMBOLS
+; End-test: (NULL X)
+; End-value: NIL
+; Aug-test: (SYMBOLP (FIRST X))
+; Aug-fun: CONS
+; Aug-val: (FIRST X)
+; Reduced-x: (REST X)
+
+(defun extract-symbols (x)
+  (cond ((null x) nil)
+        ((symbolp (first x))
+         (cons (first x)
+               (extract-symbols (rest x))))
+        (t (extract-symbols (rest x)))))
+
+; (dtrace extract-symbols)
+
+(extract-symbols '(3 bears and 1 girl)) 
+; (BEARS AND GIRL)
+; ----Enter EXTRACT-SYMBOLS
+; |     Arg-1 = (3 BEARS AND 1 GIRL)
+; |   ----Enter EXTRACT-SYMBOLS
+; |   |     Arg-1 = (BEARS AND 1 GIRL)
+; |   |   ----Enter EXTRACT-SYMBOLS
+; |   |   |     Arg-1 = (AND 1 GIRL)
+; |   |   |   ----Enter EXTRACT-SYMBOLS
+; |   |   |   |     Arg-1 = (1 GIRL)
+; |   |   |   |   ----Enter EXTRACT-SYMBOLS
+; |   |   |   |   |     Arg-1 = (GIRL)
+; |   |   |   |   |   ----Enter EXTRACT-SYMBOLS
+; |   |   |   |   |   |     Arg-1 = NIL
+; |   |   |   |   |    \--EXTRACT-SYMBOLS returned NIL
+; |   |   |   |    \--EXTRACT-SYMBOLS returned (GIRL)
+; |   |   |    \--EXTRACT-SYMBOLS returned (GIRL)
+; |   |    \--EXTRACT-SYMBOLS returned (AND GIRL)
+; |    \--EXTRACT-SYMBOLS returned (BEARS AND GIRL)
+;  \--EXTRACT-SYMBOLS returned (BEARS AND GIRL)
+
+
+; 8.32. write the function SUM-NUMERIC-ELEMENTS which adds up all the numbers
+; in a list and ignores the non-numbers
+ (defun sum-numeric-elements (x)
+   (cond ((null x) 0)
+         ((numberp (first x))
+          (+ (first x)
+             (sum-numeric-elements (rest x))))
+         (t (sum-numeric-elements (rest x)))))
+
+(sum-numeric-elements '(3 bears 3 bowls and 1 girl)) 
+; 7
+
+
+; 8.33. write MY-REMOVE, a recursive version of the REMOVE function
+(setf line-3 '(roses are red and blue and so are you))
+
+(defun my-remove (m l)
+  (cond ((null l) nil)
+        ((not (equal m (first l)))
+         (cons (first l)
+               (my-remove m (rest l))))
+        (t (my-remove m (rest l)))))
+
+(remove 'are line-2)
+; (ROSES RED AND BLUE AND SO YOU)
+
+(my-remove 'are line-2)
+; (ROSES RED AND BLUE AND SO YOU)
+
+(remove 'and line-2)
+; (ROSES ARE RED BLUE SO ARE YOU)
+
+(my-remove 'and line-2)
+; (ROSES ARE RED BLUE SO ARE YOU)
+
+
+; 8.34. write MY-INTERSECTION, a recursive version of the INTERSECTION function
+(setf line-4 '(roses are green at haloween))
+
+(member 'green line-4)
+
+(defun my-intersection (x y)
+  (cond ((null x) nil)
+        ((member (first x) y)
+         (cons (first x)
+               (my-intersection (rest x) y)))
+        (t (my-intersection (rest x) y))))
+
+(intersection line-3 line-4)
+; (ARE ARE ROSES)
+
+(my-intersection line-3 line-4)
+; (ROSES ARE ARE)
+
+
+; 8.35. write MY-SET-DIFFERENCE, a recursive version of the SET-DIFFERENCE function
+(defun my-set-difference (x y)
+  (cond ((null x) nil)
+        ((not (member (first x) y))
+         (cons (first x)
+               (my-set-difference (rest x) y)))
+        (t (my-set-difference (rest x) y))))
+
+(set-difference line-3 line-4)
+; (YOU SO AND BLUE AND RED)
+
+(my-set-difference line-3 line-4)
+; (RED AND BLUE AND SO YOU)
+
+
+; 8.36. COUNT-ODD counts the number of odd elements in a list of numbers
+; (COUNT-ODD '(4 5 6 7 8)) should return 2
+; Write COUNT-ODD using conditional augmentation
+; Write another version of COUNT-ODD using the regular augmenting template (to
+; do this write a conditional expression for the augmentation value)
+
+(defun count-odd-aug (x)
+  (cond ((null x) 0)
+        ((oddp (first x))
+         (+ 1 (count-odd-aug (rest x))))
+        (t (count-odd-aug (rest x)))))
+
+(count-odd-aug '(4 5 6 7 8))
+; 2
+
+(count-odd-aug '(4 6 8))
+; 0
+
+(defun count-odd-reg (x)
+  (cond ((null x) 0)
+        (t (if (oddp (first x))
+             (+ 1 (count-odd-reg (rest x)))
+             (count-odd-reg (rest x))))))
+
+(count-odd-reg '(4 5 6 7 8))
+; 2
+
+(count-odd-reg '(4 6 8))
+; 0
