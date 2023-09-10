@@ -1144,3 +1144,310 @@
 
 (count-odd-reg '(4 6 8))
 ; 0
+
+
+; Multiple recursion
+; A function is multiple recursive if it makes more than one recursive call
+; with each invocation
+; The fibonacci function is a classic example of multiple recursion. Fib(N) calls
+; itself twice: once for Fib(N-1) and again for Fib(N-2). The result of the two 
+; calls are combined using +
+
+; Template
+; (defun func (n)
+;   (cond (end-test-1 end-value-1)
+;         (end-test-2 end-value-l)
+;         (t (combiner (func first-reduced-n)
+;                      (func second-reduced-n)))))
+
+; Example
+; Func: FIB
+; End-test-1: (EQUAL N 0)
+; End-value-1: (EQUAL N 1)
+; End-value-2: 1
+; Combiner: +
+; First-reduced-n: (- N 1)
+; Second-reduced-n: (- N 2)
+
+(defun fib-2 (n)
+  (cond ((equal n 0) 1)
+        ((equal n 1) 1)
+        (t (+ (fib (- n 1))
+              (fib (- n 2))))))
+
+; (dtrace fib-2)
+
+(fib 3)
+; 3
+; ----Enter FIB
+; |     Arg-1 = 3
+; |   ----Enter FIB
+; |   |     Arg-1 = 2
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 1
+; |   |    \--FIB returned 1
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 0
+; |   |    \--FIB returned 1
+; |    \--FIB returned 2
+; |   ----Enter FIB
+; |   |     Arg-1 = 1
+; |    \--FIB returned 1
+;  \--FIB returned 3
+
+
+; 8.37. define a function COMBINE that takes two numbers as input and returns
+; their sum
+; Replace the occurrence of + in FIB with COMBINE
+; Trace FIB and COMBINE and try evaluating (FIB 3) or (FIB 4)
+; What can you say about the relationship between COMBINE, terminal calls and
+; nonterminal calls?
+
+(defun combine (x y)
+  (+ x y))
+
+(dtrace combine)
+
+(defun fib-3 (n)
+  (cond ((equal n 0) 1)
+        ((equal n 1) 1)
+        (t (combine (fib (- n 1))
+                    (fib (- n 2))))))
+
+(dtrace fib-3)
+
+(fib-3 3)
+; 3
+; ----Enter FIB-3
+; |     Arg-1 = 3
+; |   ----Enter FIB
+; |   |     Arg-1 = 2
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 1
+; |   |    \--FIB returned 1
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 0
+; |   |    \--FIB returned 1
+; |    \--FIB returned 2
+; |   ----Enter FIB
+; |   |     Arg-1 = 1
+; |    \--FIB returned 1
+; |   ----Enter COMBINE
+; |   |     Arg-1 = 2
+; |   |     Arg-2 = 1
+; |    \--COMBINE returned 3
+;  \--FIB-3 returned 3
+
+(fib-3 4)
+; ----Enter FIB-3
+; |     Arg-1 = 4
+; |   ----Enter FIB
+; |   |     Arg-1 = 3
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 2
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 1
+; |   |   |    \--FIB returned 1
+; |   |   |   ----Enter FIB
+; |   |   |   |     Arg-1 = 0
+; |   |   |    \--FIB returned 1
+; |   |    \--FIB returned 2
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 1
+; |   |    \--FIB returned 1
+; |    \--FIB returned 3
+; |   ----Enter FIB
+; |   |     Arg-1 = 2
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 1
+; |   |    \--FIB returned 1
+; |   |   ----Enter FIB
+; |   |   |     Arg-1 = 0
+; |   |    \--FIB returned 1
+; |    \--FIB returned 2
+; |   ----Enter COMBINE
+; |   |     Arg-1 = 3
+; |   |     Arg-2 = 2
+; |    \--COMBINE returned 5
+;  \--FIB-3 returned 5
+
+; Every nonterminal call to FIB makes one call to combine
+; Every call to COMBINE combines the results of two more calls to FIB
+
+
+; Trees and CAR/CDR recursion
+
+; CAR/CDR recursion
+; A special case of multiple recursion
+
+; Template:
+; (defun func (x)
+;   (cond (end-test-1 end-value-1)
+;         (end-test-2 end-value-2)
+;         (t (combiner (func (car x)
+;                            (cdr x))))))
+
+; Example:
+; Func: FIND-NUMBER
+; End-test-1: (NUMBERP X)
+; End-value-1: X
+; End-test-2: (ATOM X)
+; End-value-2: NIL
+; Combiner: OR
+
+(defun find-number (x)
+  (cond ((numberp x) x)
+        ((atom x) nil)
+        (t (or (find-number (car x))
+               (find-number (cdr x))))))
+
+(find-number '(a b c d))
+; NIL
+
+(find-number '(a b 5 d 7))
+; 5
+
+(defun atoms-to-q (x)
+  (cond ((null x) nil)
+        ((atom x) 'q)
+        (t (cons (atoms-to-q (car x))
+                 (atoms-to-q (cdr x))))))
+
+(atoms-to-q '(a . b))
+; (Q . Q)
+
+(atoms-to-q '(hark (harold the angel) sings))
+; (Q (Q Q Q) Q)
+
+
+; 8.38. what would be the effect of deleting the first COND clause in ATOMS-TO-Q?
+
+(defun atoms-to-q-no-null (x)
+  (cond ((atom x) 'q)
+        (t (cons (atoms-to-q-no-null (car x))
+                 (atoms-to-q-no-null (cdr x))))))
+
+(atoms-to-q-no-null '(a . b))
+; (Q . Q)
+
+(atoms-to-q-no-null '(hark (harold the angel) sings))
+; (Q (Q Q Q . Q) Q . Q)
+
+; It converts NIL to Q in the output
+
+
+; 8.39. write a function COUNT-ATOMS that returns the number of atoms in a tree
+
+(defun atoms-to-q (x)
+  (cond ((null x) nil)
+        ((atom x) 'q)
+        (t (cons (atoms-to-q (car x))
+                 (atoms-to-q (cdr x))))))
+
+(defun count-atoms (x)
+  (cond ((null x) 1)
+        ((atom x) 1)
+        (t (+ (count-atoms (car x))
+              (count-atoms (cdr x))))))
+
+(count-atoms '(a (b) c))
+; 5
+
+
+; 8.40. write a function COUNT-CONS that returns the number of cons cells in a
+; tree
+
+(defun count-cons (x)
+  (cond ((atom x) 0)
+        (t (+ 1 
+              (count-cons (car x))
+              (count-cons (cdr x))))))
+
+(count-cons 'fred)
+; 0
+
+(count-cons '(foo bar))
+; 2
+
+(count-cons '(foo)) 
+; 1
+
+(count-cons '((foo))) 
+; 2
+
+
+; 8.41. write a function SUM-TREE that returns the sum of all the numbers appearing
+; in a tree. Non-numbers should be ignored
+
+(defun sum-tree (x)
+  (cond ((numberp x) x)
+        ((atom x) 0)
+        (t (+ (sum-tree (car x))
+              (sum-tree (cdr x))))))
+
+(sum-tree '((3 bears) (3 bowls) (1 girl)))
+; 7
+
+
+; 8.42. write MY-SUBST, a recursive version of the SUBST function
+(setf subst-l '(if i learn lisp i will be pleased))
+(subst 'we 'i subst-l)
+; (IF WE LEARN LISP WE WILL BE PLEASED)
+
+(defun my-subst (x y l)
+  (cond ((equal l y) x)
+        ((atom l) l)
+        (t (cons (my-subst x y (car l))
+                 (my-subst x y (cdr l))))))
+
+(my-subst 'we 'i subst-l)
+; (IF WE LEARN LISP WE WILL BE PLEASED)
+
+
+; 8.43. write FLATTEN, a function that returns all the elements of an arbitrarily
+; nested list in a single-leel list
+; '((A B (R)) A C (A D ((A (B)) R) A))) should return (A B R A C A D A B R A)
+
+(defun flatten (l)
+  (cond ((atom l) (list l))
+        (t (append (flatten (car l))
+                   (and (cdr l) (flatten (cdr l)))))))
+
+(flatten '((A B (R)) A C (A D ((A (B)) R) A))) 
+; (A B R A C A D A B R A)
+
+
+; 8.44. write a function TREE-DEPTH that returns the maximum depth of a binary
+; tree
+
+(defun tree-depth (l)
+  (cond ((atom l) 0)
+        (t (+ 1
+              (max 
+                (tree-depth (car l))
+                (tree-depth (cdr l)))))))
+
+(tree-depth '(a . b))
+; 1
+
+(tree-depth '((a b c d)))
+; 5
+
+(tree-depth '((a . b) . (c . d)))
+; 2
+
+
+; 8.45. write a function PAREN-DEPTH that returns the maximum depth of nested
+; parentheses in a list
+
+(defun paren-depth (l)
+  (cond ((atom l) 0)
+        (t (max 
+             (+ 1 (paren-depth (first l)))
+             (paren-depth (rest l))))))
+
+(paren-depth '(a b c))
+; 1
+
+(paren-depth '(a b ((c) d) e))
+; 3
