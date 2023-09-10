@@ -1451,3 +1451,42 @@
 
 (paren-depth '(a b ((c) d) e))
 ; 3
+
+
+; Using helping functions
+; For some problems it is useful to structure the solution as a helping function
+; plus a recursive function
+; The recursive function does most of the work. The helping function is the one 
+; you call from the top level
+
+(defun count-up-recursively (c n)
+  (cond ((> c n) nil)
+        (t (cons c
+                 (count-up-recursively (+ c 1) n)))))
+
+(defun count-up (n)
+  (count-up-recursively 1 n))
+
+; (dtrace count-up count-up-recursively)
+
+(count-up 3)
+; (1 2 3)
+; ----Enter COUNT-UP
+; |     Arg-1 = 3
+; |   ----Enter COUNT-UP-RECURSIVELY
+; |   |     Arg-1 = 1
+; |   |     Arg-2 = 3
+; |   |   ----Enter COUNT-UP-RECURSIVELY
+; |   |   |     Arg-1 = 2
+; |   |   |     Arg-2 = 3
+; |   |   |   ----Enter COUNT-UP-RECURSIVELY
+; |   |   |   |     Arg-1 = 3
+; |   |   |   |     Arg-2 = 3
+; |   |   |   |   ----Enter COUNT-UP-RECURSIVELY
+; |   |   |   |   |     Arg-1 = 4
+; |   |   |   |   |     Arg-2 = 3
+; |   |   |   |    \--COUNT-UP-RECURSIVELY returned NIL
+; |   |   |    \--COUNT-UP-RECURSIVELY returned (3)
+; |   |    \--COUNT-UP-RECURSIVELY returned (2 3)
+; |    \--COUNT-UP-RECURSIVELY returned (1 2 3)
+;  \--COUNT-UP returned (1 2 3)
