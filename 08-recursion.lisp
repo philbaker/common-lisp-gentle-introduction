@@ -1490,3 +1490,736 @@
 ; |   |    \--COUNT-UP-RECURSIVELY returned (2 3)
 ; |    \--COUNT-UP-RECURSIVELY returned (1 2 3)
 ;  \--COUNT-UP returned (1 2 3)
+
+
+; 8.46. counting upward can also be solved by adding an element to the end of
+; the list with each recursive call instead of adding elements to the beginning
+
+(defun count-up-recursively-end (n)
+  (cond ((zerop n) nil)
+        (t (append (count-up-recursively-end (- n 1))
+                   (list n)))))
+
+(count-up-recursively-end 5)
+; (1 2 3 4 5)
+
+(count-up-recursively-end 0)
+; NIL
+
+
+; 8.47. write MAKE-LOAF, a function that returns a loaf of size N.
+
+(defun make-loaf (n)
+  (cond ((<= n 0) nil)
+        (t (append (make-loaf (- n 1))
+                   (list 'x)))))
+
+(make-loaf 4)
+; (X X X X)
+
+(make-loaf 0)
+; NIL
+
+(make-loaf -1)
+; NIL
+
+
+; 8.48. write a recursive function BURY that buries an item under N levels of
+; parens
+; Recursion template: Single-test tail recursion
+
+(defun bury (x n)
+  (cond ((<= n 0) x)
+        (t (bury (list x) (- n 1)))))
+
+(bury 'fred 2)
+; ((FRED))
+
+(bury 'fred 5)
+; (((((FRED)))))
+
+
+; 8.49. write PAIRINGS, a function that pairs the elements of two lists
+; You may assume that the two lists will be of equal length
+
+(defun pairings (x y)
+  (cond ((null x) y)
+        (t (cons (list (first x) (first y))
+                 (pairings (rest x) (rest y))))))
+
+(pairings '(a b c) '(1 2 3))
+; ((A 1) (B 2) (C 3))
+
+
+; 8.50. write SUBLISTS, a function that returns the successive sublists of a list
+
+(defun sublists (l)
+  (cond ((null l) nil)
+        (t (cons l
+                 (sublists (rest l))))))
+
+(sublists '(fee fie foe))
+; ((FEE FIE FOE) (FIE FOE) (FOE))
+
+
+; 8.51. write MY-REVERSE with a helping function plus a recursive function of
+; two inputs
+
+(setf r-test-list '(a b c))
+
+(defun my-reverse-recursively (x y)
+  (cond ((null x) y)
+        (t (my-reverse-recursively 
+             (rest x)
+             (cons (first x) y)))))
+
+(defun my-reverse (x)
+  (my-reverse-recursively x nil))
+
+(my-reverse r-test-list)
+; (C B A)
+
+
+; 8.52. write MY-UNION, a recursive version of UNION
+(setf a '(soap water))
+
+(union a '(no soap radio))
+; (RADIO NO SOAP WATER)
+
+(defun my-union-2 (x y)
+  (append x (my-union-recursively x y)))
+
+(defun my-union-recursively (x y)
+  (cond ((null y) nil)
+        ((member (first y) x)
+         (my-union-recursively x (rest y)))
+        (t (cons (first y)
+                 (my-union-recursively
+                   x
+                   (rest y))))))
+
+(my-union-recursively a '(no soap radio))
+; (NO RADIO)
+
+(my-union-2 a '(no soap radio))
+; (SOAP WATER NO RADIO)
+
+
+; 8.53. write LARGEST-EVEN, a recursive function that returns the largest even
+; number in a list of non-negative integers
+; Use the built in MAX function, which returns the largest of its inputs
+
+(defun largest-even (l)
+  (cond ((null l) 0)
+        ((oddp (first l))
+         (largest-even (rest l)))
+        (t (max (first l)
+                (largest-even (rest l))))))
+
+(largest-even nil)
+; 0
+
+(largest-even '(5 2 4 3))
+; 4
+
+
+; 8.54. write HUGE, a recursive function that raises a number to its own power
+
+(defun huge (x)
+  (huge-helper x x))
+
+(defun huge-helper (x n)
+  (cond ((equal n 0) 1)
+        (t (* x (huge-helper x (- n 1))))))
+
+(huge 2)
+; 4
+
+(huge 3)
+; 27
+
+(huge 4)
+; 256
+
+
+; 8.55. what distinguishes a recursive function from a nonrecursive one?
+; A recursive function will call itself until a base condition is met
+
+; 8.56. write EVERY-OTHER, a recursive function that returns every other
+; element of a list
+
+(defun every-other (l)
+  (cond
+    ((null l) nil)
+    (t (cons (first l)
+             (every-other (rest (rest l)))))))
+
+(every-other '(a b c d e f g))
+; (A C E G)
+
+(every-other '(I came I saw I conquered))
+; (I I I)
+
+; 8.57. write LEFT-HALF, a recursive function in two parts that returns the first
+; n/2 elements of a list of length n.
+; write the function so that the list does not have to be of even length
+; you may use length but not reverse
+
+(defun left-half (l)
+  (let ((half-rounded (first (multiple-value-list (ceiling (/ (length l) 2.0))))))
+    (left-half-helper l half-rounded)))
+
+(defun left-half-helper (l x)
+  (cond ((equal x 0) nil)
+        (t (cons (first l)
+                 (left-half-helper (rest l) (- x 1))))))
+
+(left-half '())
+; NIL
+
+(left-half '(a b c d e))
+; (A B C)
+
+(left-half '(1 2 3 4 5 6 7 8))
+; (1 2 3 4)
+
+
+; 8.58. write MERGE-LISTS, a function that takes two lists of numbers, each in
+; increasing order, as input and returns a list that is a merger of the elements
+; in its inputs, in order
+
+(defun merge-lists (x y)
+  (cond
+    ((null x) y)
+    ((null y) x)
+    ((< (first x) (first y))
+     (cons (first x)
+           (merge-lists (rest x) y)))
+    (t (cons (first y)
+              (merge-lists x (rest y))))))
+
+(merge-lists '(1 2 6 8 10 12) '(2 3 5 9 13))
+; (1 2 2 3 5 6 8 9 10 12 13)
+
+
+; 8.59. recursive factorial
+; - Is this definition recursive? yes
+; - It appears to work as expected
+(defun fact-r (n)
+  (cond ((zerop n) 1)
+        (t (/ (fact (+ n 1))
+              (+ n 1)))))
+
+(fact-r 0)
+; 1
+
+(time (fact-r 5))
+; 120
+
+
+; 8.60. Keyboard exercise
+(setf family
+      '((colin nil nil)
+        (deirdre nil nil)
+        (arthur nil nil)
+        (kate nil nil)
+        (frank nil nil)
+        (linda nil nil)
+        (suzanne colin deirdre)
+        (bruce arthur kate)
+        (charles arthur kate)
+        (david arthur kate)
+        (ellen arthur kate)
+        (george frank linda)
+        (hillary frank linda)
+        (andre nil nil)
+        (tamara bruce suzanne)
+        (vincent bruce suzanne)
+        (wanda nil nil)
+        (ivan george ellen)
+        (julie george ellen)
+        (marie george ellen)
+        (nigel andre hillary)
+        (frederick nil tamara)
+        (zelda vincent wanda)
+        (joshua ivan wanda)
+        (quentin nil nil)
+        (robert quentin julie)
+        (olivia nigel marie)
+        (peter nigel marie)
+        (erica nil nil)
+        (yvette robert zelda)
+        (diane peter erica)))
+
+; a. write the functions FATHER, MOTHER, PARENTS and children
+(defun father (x)
+  (second (assoc x family)))
+
+(defun mother (x) 
+  (third (assoc x family)))
+
+(defun children (x)
+  (and x
+       (mapcar #'first
+               (remove-if-not
+                 #'(lambda (y)
+                     (member x (rest y)))
+                 family))))
+
+(defun parents (x)
+  (union (and (father x) (list (father x)))
+         (and (mother x) (list (mother x)))))
+
+; parents
+; find childs name in first position, remove the others
+; second is father
+; third is mother
+
+(father 'suzanne)
+; COLIN
+
+(father nil) 
+; NIL
+
+(mother 'suzanne)
+; DEIRDRE
+
+(mother nil)
+; NIL
+
+(parents 'suzanne)
+; (COLIN DEIRDRE)
+
+(parents nil)
+; NIL
+
+(parents 'frederick)
+; (TAMARA)
+
+(children 'deirdre)
+; (SUZANNE)
+
+(children 'colin)
+; (SUZANNE)
+
+(children nil)
+; NIL
+
+
+; b. write SIBLINGS, a function that returns a list of a person's siblings,
+; including genetic half-siblings
+
+; siblings share one parent
+; (siblings 'bruce)
+; ('charles 'david 'ellen)
+; find anyone who has arthur in second position or kate in third position
+; remove the bruce from the collection
+
+(defun siblings (x)
+  (set-difference (union (children (father x))
+                         (children (mother x)))
+                  (list x)))
+
+
+(siblings 'bruce)
+; (CHARLES DAVID ELLEN)
+
+(siblings 'zelda) 
+; (JOSHUA)
+
+
+; c. write MAPUNION, an applicative operator that takes a function and a list
+; as input, applies the function to every element of the list, and computes the 
+; union of all results
+; hint: MAPUNION can be defined as a combination of two applicative operators 
+; you already know
+
+(defun mapunion (f l)
+  (reduce #'union 
+          (mapcar f l)))
+
+(mapunion #'rest '((1 a b c) (2 e c j) (3 f a b c d)))
+; (D B A F E C J)
+
+
+; d. write GRANDPARENTS, a function that returns the set of a person's grandparents
+; Use MAPUNION in your solution
+
+(defun grandparents (x)
+  (mapunion #'parents (parents x)))
+
+(grandparents 'diane)
+; (MARIE NIGEL)
+
+(grandparents 'yvette)
+; (JULIE QUENTIN VINCENT WANDA)
+
+
+; e. write COUSINS, a function that returns the set of a person's genetically 
+; related first cousins
+; the chlidren of any of their parent's siblings
+; (cousins 'julie)
+; (tamara vincent nigel)
+
+(defun cousins (x)
+  (mapunion #'children
+            (mapunion #'siblings (parents x))))
+
+(cousins 'julie)
+; (TAMARA VINCENT NIGEL)
+
+
+; f. write the two-input recursive predicate DESCENDED-FROM that returns a true
+; value if the first person is descended from the second
+; hint: you are descended from someone if they are one of your parents, or if
+; either your father or mother is descended from them. This is a recursive 
+; definition
+
+(defun descended-from (x y)
+  (cond ((null x) nil)
+        ((member y (parents x)) t)
+        (t (or
+             (descended-from (father x) y)
+             (descended-from (mother x) y)))))
+
+(descended-from 'tamara 'arthur)
+; T
+
+(descended-from 'tamara 'linda)
+; NIL
+
+
+; g. write the recursive function ANCESTORS that returns a person's set of 
+; ancestors.
+; hint: a person's ancestors are their parents plus their parents' ancestors
+
+(defun ancestors (x)
+  (cond ((null x) nil)
+        (t (union
+             (parents x)
+             (union (ancestors (father x))
+                    (ancestors (mother x)))))))
+
+(ancestors 'marie) 
+; (ARTHUR KATE LINDA FRANK GEORGE ELLEN)
+
+
+; h. write the recursive function GENERATION-GAP that returns the number of 
+; generations separating a person and one of his or her ancestors
+
+(defun generation-gap-helper (x y n)
+  (cond ((null x) nil)
+        ((equal x y) n)
+        (t (or (generation-gap-helper
+                 (father x) y (1+ n))
+               (generation-gap-helper
+                 (mother x) y (1+ n))))))
+
+(defun generation-gap (x y)
+   (generation-gap-helper x y 0))
+
+(generation-gap 'suzanne 'colin)
+; 1
+
+(generation-gap 'frederick 'colin)
+; 3
+
+(generation-gap 'frederick 'linda)
+; nil
+
+
+; i.
+; 1. Is Robert descended from Deidre?
+(descended-from 'robert 'deidre)
+; NIL
+
+; 2. Who are Yvette's ancestors?
+(ancestors 'yvette)
+; (WANDA VINCENT SUZANNE BRUCE ARTHUR KATE DEIRDRE COLIN LINDA FRANK GEORGE ELLEN
+;  QUENTIN JULIE ROBERT ZELDA)
+
+; 3. What is the generation gap between Olivia and Frank?
+(generation-gap 'olivia 'frank)
+; 3
+
+; 4. Who are Peter's cousins?
+(cousins 'peter)
+; (JOSHUA ROBERT)
+
+; 5. Who are Olivia's grandparents?
+(grandparents 'olivia)
+; (HILLARY ANDRE GEORGE ELLEN)
+
+
+; Advanced topic
+; Advantages of tail recursion
+
+; Producing a tail-recursive version of an ordinary recursive function is to introduce
+; an extra variable for accumulating augmentation values
+
+(defun tr-count-slices (loaf)
+  (tr-cs1 loaf 0))
+
+(defun tr-cs1 (loaf n)
+  (cond ((null loaf) n)
+        (t (tr-cs1 (rest loaf (+ n 1))))))
+
+; not tail recursive
+(defun my-reverse-2 (x)
+  (cond ((null x) nil)
+        (t (append (reverse (rest x))
+                   (list (first x))))))
+
+(defun tr-reverse (x)
+  (tr-rev1 x nil))
+
+(defun tr-rev1 (x result)
+  (cond ((null x) result)
+        (t (tr-rev1
+             (rest x)
+             (cons (first x) result)))))
+
+; (dtrace tr-reverse tr-rev1)
+
+(tr-reverse '(a b c d))
+; (D C B A)
+; ----Enter TR-REVERSE
+; |     Arg-1 = (A B C D)
+; |   ----Enter TR-REV1
+; |   |     Arg-1 = (A B C D)
+; |   |     Arg-2 = NIL
+; |   |   ----Enter TR-REV1
+; |   |   |     Arg-1 = (B C D)
+; |   |   |     Arg-2 = (A)
+; |   |   |   ----Enter TR-REV1
+; |   |   |   |     Arg-1 = (C D)
+; |   |   |   |     Arg-2 = (B A)
+; |   |   |   |   ----Enter TR-REV1
+; |   |   |   |   |     Arg-1 = (D)
+; |   |   |   |   |     Arg-2 = (C B A)
+; |   |   |   |   |   ----Enter TR-REV1
+; |   |   |   |   |   |     Arg-1 = NIL
+; |   |   |   |   |   |     Arg-2 = (D C B A)
+; |   |   |   |   |    \--TR-REV1 returned (D C B A)
+; |   |   |   |    \--TR-REV1 returned (D C B A)
+; |   |   |    \--TR-REV1 returned (D C B A)
+; |   |    \--TR-REV1 returned (D C B A)
+; |    \--TR-REV1 returned (D C B A)
+;  \--TR-REVERSE returned (D C B A)
+
+
+; 8.61. Write a tail-recursive version of COUNT-UP
+(defun tr-count-up1 (n result)
+  (cond ((zerop n) result)
+        (t (tr-count-up1
+             (- n 1)
+             (cons n result)))))
+
+(defun tr-count-up (n)
+  (tr-count-up1 n nil))
+
+(tr-count-up 5)
+; (1 2 3 4 5)
+
+
+; 8.62. Write a tail-recursive version of FACT
+(defun tr-fact1 (x y)
+  (cond ((zerop x) y)
+        (t (tr-fact1 (- x 1) (* x y)))))
+
+(defun tr-fact (n)
+  (tr-fact1 n 1))
+
+(tr-fact 5)
+; 120
+
+
+; 8.63. Write tail-recursive versions of UNION, INTERSECTION, and SET-DIFFERENCE
+(defun tr-union (x y)
+  (cond ((null x) y)
+        ((member (first x) y )
+         (tr-union (rest x) y))
+        (t (tr-union
+             (rest x)
+             (cons (first x) y)))))
+
+(tr-union '(a b c) '(c d e)) 
+; (B A C D E)
+
+(defun tr-intersect (x y)
+  (tr-int1 x y nil))
+
+(defun tr-int1 (x y result)
+  (cond ((null x) result)
+        ((member (first x) y)
+         (tr-int1
+           (rest x)
+           y
+           (cons (first x) result)))
+        (t (tr-int1
+             (rest x) y result))))
+
+(tr-intersect '(a b c) '(c d e))
+; (C)
+
+(defun tr-set-difference (x y)
+  (tr-setdiff1 x y nil))
+
+(defun tr-setdiff1 (x y result)
+  (cond ((null x) result)
+        ((not (member (first x) y))
+         (tr-setdiff1
+           (rest x)
+           y
+           (cons (first x) result)))
+        (t (tr-setdiff1
+             (rest x) y result))))
+
+(tr-set-difference '(a b c) '(c d e))
+; (B A)
+
+
+; Writing new applicative operators
+; We can use FUNCALL to invoke a function that the user supplies. This allows
+; us to write our own applicative operators.
+(defun my-mapcar (fn x)
+  (cond ((null x) nil)
+        (t (cons (funcall fn (first x))
+                 (my-mapcar fn (rest x))))))
+
+
+; 8.64. Write a TREE-FIND-IF operator that returns the first non-NIL atom of
+; a tree that satisfies a predicate
+
+(defun tree-find-if (pred tree)
+  (cond ((and tree
+              (atom tree)
+              (funcall pred tree))
+         tree)
+        ((atom tree) nil)
+        (t (or (tree-find-if
+                 pred (car tree))
+               (tree-find-if
+                 pred (cdr tree))))))
+
+(tree-find-if #'oddp '((2 4) (5 6 7))) 
+; 5
+
+
+; The labels special function
+; So far we've been writing helper functions as separate DEFUNs. This can be
+; problematic because we might call a helper function accidentally.
+
+; The LABELS special functiion allows us to establish local function definitions
+; inside the body of the main function
+
+(defun count-up-l (n)
+  (labels ((count-up-recursively (c)
+                                 (if (> c n) nil
+                                   (cons c
+                                         (count-up-recursively
+                                           (+ c 1))))))
+    (count-up-recursively 1)))
+
+
+; 8.65. Use LABELS to write versions of TR-COUNT-SLICES and TR-REVERSE
+(defun tr-count-slices (x)
+  (labels ((trc1 (x n)
+                 (if x
+                   (trc1 (rest x)
+                         (+ n 1))
+                   n)))
+    (trc1 x 0)))
+
+
+(tr-count-slices '(x x x x x))
+; 5
+
+(defun tr-reverse (x)
+  (labels ((trrev1 (x r)
+                   (if x
+                     (trrev1
+                       (rest x)
+                       (cons (first x) r))
+                     r)))
+    (trrev1 x nil)))
+
+(tr-reverse '(a b c d))
+; (D C B A)
+
+
+; 8.66. write ARITH-EVAL, a function that evaluates arithmetic expressions
+
+(defun arith-eval (x)
+  (cond ((numberp x) x)
+        (t (funcall (second x)
+                    (arith-eval (first x))
+                    (arith-eval (third x))))))
+
+(arith-eval '(2 + (3 * 4)))
+; 14
+
+
+; 8.67. write a predicate LEGALP that returns T if its input is a legal arithmetic
+; expression
+
+(defun legalp (x)
+  (cond ((numberp x) t)
+        ((atom x) nil)
+        (t (and (equal (length x) 3)
+                (legalp (first x))
+                (member (second x)
+                        '(+ - * /))
+                (legalp (third x))))))
+
+(legalp 4)
+; T
+
+(legalp '((2 * 2) - 3))
+; T
+
+(legalp nil)
+; NIL
+
+(legalp '(a b c d))
+; NIL
+
+
+; 8.68. complete the sentence
+; A proper list is a cons cell chain ending in NIL. Lists that aren't proper lists
+; are called dotted lists, because they must be written with a dot. If we wanted 
+; to define the concept of proper list recursively, we could say "NIL is a proper
+; list, and so is any cons cell whose..." cdr is a proper list
+
+
+; 8.69. write a recursive definition for positive integers greater than one in the
+; terms of prime numbers
+; A positive integer greater than 1 or the product of a prime and a positive integera
+; greater than 1
+
+
+; 8.70. write the function FACTOR-TREE that returns a factorization tree
+
+(defun factor-tree (n)
+  (fact-tree-help n 2))
+
+(defun fact-tree-help (n p)
+  (cond ((equal n p) n)
+        ((zerop (rem n p))
+         (list n p (fact-tree-help (/ n p) p)))
+        (t (fact-tree-help n (+ p 1)))))
+
+(factor-tree 60)
+; (60 2 (30 2 (15 3 5)))
+
+
+; 8.71. what are the terminal / nonterminal nodes of (A B (C D) E)
+; A, B, C, D, E, NIL
+; nonterminal nodes are the cons cells
+
+
+; 8.72. pick a concept or object and describe it in terms of a general tree
+; structure
+; An organisation is often a hierarchical structure with a varying numbers of braches
+; Nonterminal nodes: company, leadership, departments,
+; Terminal nodes: employees
